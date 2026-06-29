@@ -1,33 +1,45 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.5.16'
-	id 'io.spring.dependency-management' version '1.1.7'
-	id 'application'
+    id 'java'
+    id 'org.springframework.boot' version '3.5.16'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'application'
+    id 'org.sonarqube' version '5.1.0.4882'
 }
 
 group = 'hexlet.code'
 version = '0.0.1-SNAPSHOT'
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
-	}
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
 
 application {
     mainClass = 'hexlet.code.app.AppApplication'
+}
+
+sonarqube {
+    properties {
+        property 'sonar.host.url', System.getenv('SONAR_HOST_URL') ?: 'https://sonarcloud.io'
+        property 'sonar.token', System.getenv('SONAR_TOKEN')
+        property 'sonar.projectKey', 'bobbidenisleo-glitch_java-project-99'
+        property 'sonar.organization', 'bobbidenisleo-glitch'
+        property 'sonar.sources', 'src/main/java'
+        property 'sonar.tests', 'src/test/java'
+    }
 }
