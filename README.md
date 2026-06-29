@@ -1,7 +1,54 @@
-### Hexlet tests and linter status:
-[![Actions Status](https://github.com/bobbidenisleo-glitch/java-project-99/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/bobbidenisleo-glitch/java-project-99/actions)
-# java-project-99
+л# Проект №5: Менеджер задач (Java)
+
+## Описание проекта
+
+Это учебный проект, разработанный в рамках курса Хекслет. 
+Представляет собой бэкенд для менеджера задач, созданный на Spring Boot.
+
+## Технологии
+
+- **Java 21**
+- **Spring Boot 3.5.16**
+- **Gradle 8.7+**
+- **PostgreSQL**
+- **Render** (деплой)
 
 ## Деплой
 
-Приложение доступно по адресу: [https://java-project-99.onrender.com](https://java-project-99.onrender.com)
+Приложение развернуто на платформе Render.
+
+**Ссылка на работающее приложение:**
+[https://java-project-99-p96b.onrender.com/welcome](https://java-project-99-p96b.onrender.com/welcome)
+
+*При переходе по ссылке вы увидите текст "Welcome to Spring".*
+
+## Как запустить проект локально
+
+### Требования
+
+- **Java 21** (проверьте командой `java -version`)
+- **Gradle 8.7+** (проверьте командой `gradle --version`)
+
+### Установка и запуск
+
+1. Склонируйте репозиторий:
+   git clone git@github.com:bobbidenisleo-glitch/java-project-99.git
+   cd java-project-99
+
+2. Соберите проект:
+   ./gradlew build
+
+3. Запустите приложение:
+   ./gradlew bootRun
+
+4. Откройте в браузере:
+   http://localhost:8080/welcome
+
+## Статус сборки
+
+[![Java CI](https://github.com/bobbidenisleo-glitch/java-project-99/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/bobbidenisleo-glitch/java-project-99/actions/workflows/hexlet-check.yml)
+
+## Автор
+
+**bobbidenisleo-glitch**  
+GitHub: [https://github.com/bobbidenisleo-glitch](https://github.com/bobbidenisleo-glitch)
