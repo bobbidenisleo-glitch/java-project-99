@@ -1,28 +1,29 @@
-FROM eclipse-temurin:21-jdk
+FROM eclipse-temurin:21-jdk AS builder
 
 WORKDIR /app
 
-# Копируем только gradle-обертку
+# Копируем только необходимые файлы для сборки
 COPY gradlew gradlew
 COPY gradle gradle
-
-# Даем права на выполнение
+COPY build.gradle settings.gradle ./
 RUN chmod +x gradlew
 
-# Копируем файлы сборки
-COPY build.gradle settings.gradle ./
-
-# Первая сборка для загрузки зависимостей (кэшируем)
+# Скачиваем зависимости (кэшируем этот слой)
 RUN ./gradlew dependencies --no-daemon || return 0
 
-# Копируем исходный код
+# Копируем исходный код и собираем JAR
 COPY src src
-
-# Собираем приложение, но НЕ запускаем тесты (экономия памяти)
 RUN ./gradlew build -x test --no-daemon
 
-# Указываем порт
+# Второй этап: создаем легкий образ для запуска
+FROM eclipse-temurin:21-jre
+
+WORKDIR /app
+
+# Копируем собранный JAR из первого этапа
+COPY --from=builder /app/build/libs/*.jar app.jar
+
 EXPOSE 8080
 
-# Запускаем приложение с ограничением памяти
-CMD ["./gradlew", "bootRun", "--no-daemon", "-Djava.awt.headless=true"]
+# Запускаем JAR с ограничением памяти
+CMD ["java", "-Xmx256m", "-jar", "app.jar"]
