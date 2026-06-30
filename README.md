@@ -1,5 +1,9 @@
 # Проект №5: Менеджер задач (Java)
 
+[![Hexlet Check](https://github.com/bobbidenisleo-glitch/java-project-99/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/bobbidenisleo-glitch/java-project-99/actions/workflows/hexlet-check.yml)
+[![SonarQube Analysis](https://github.com/bobbidenisleo-glitch/java-project-99/actions/workflows/sonarqube.yml/badge.svg)](https://github.com/bobbidenisleo-glitch/java-project-99/actions/workflows/sonarqube.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=bobbidenisleo-glitch_java-project-99&metric=alert_status)](https://sonarcloud.io/dashboard?id=bobbidenisleo-glitch_java-project-99)
+
 ## Описание проекта
 
 Это учебный проект, разработанный в рамках курса Хекслет. 
