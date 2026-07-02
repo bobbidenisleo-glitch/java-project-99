@@ -24,13 +24,15 @@
     </div>
 
     <script>
+        // API URL — можно менять для разных окружений
+        const API_URL = '/api';
         let token = localStorage.getItem('token') || '';
 
         async function login() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             try {
-                const res = await fetch('/api/login', {
+                const res = await fetch(`${API_URL}/login`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({username: email, password})
@@ -47,13 +49,18 @@
         }
 
         async function loadUsers() {
-            const res = await fetch('/api/users', {
-                headers: {'Authorization': `Bearer ${token}`}
-            });
-            const users = await res.json();
-            document.getElementById('list').innerHTML = users.map(u => 
-                `<li>${u.email} (${u.firstName} ${u.lastName})</li>`
-            ).join('');
+            try {
+                const res = await fetch(`${API_URL}/users`, {
+                    headers: {'Authorization': `Bearer ${token}`}
+                });
+                if (!res.ok) throw new Error('Failed to load users');
+                const users = await res.json();
+                document.getElementById('list').innerHTML = users.map(u => 
+                    `<li>${u.email} (${u.firstName} ${u.lastName})</li>`
+                ).join('');
+            } catch(e) {
+                document.getElementById('error').textContent = e.message;
+            }
         }
 
         function logout() {
