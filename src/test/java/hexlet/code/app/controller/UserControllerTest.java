@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -16,6 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@WithMockUser(username = "test@example.com", roles = {"USER"})
 public class UserControllerTest {
 
     @Autowired
@@ -31,10 +33,8 @@ public class UserControllerTest {
 
     @BeforeEach
     public void setUp() {
-        // Очищаем базу перед каждым тестом
         userRepository.deleteAll();
 
-        // Создаем тестового пользователя
         testUser = new User();
         testUser.setEmail("test@example.com");
         testUser.setPassword("testpass");
@@ -44,6 +44,7 @@ public class UserControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "test@example.com", roles = {"USER"})
     public void testGetAllUsers() throws Exception {
         mockMvc.perform(get("/api/users"))
                 .andExpect(status().isOk())
@@ -53,6 +54,7 @@ public class UserControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "test@example.com", roles = {"USER"})
     public void testGetUserById() throws Exception {
         mockMvc.perform(get("/api/users/" + testUser.getId()))
                 .andExpect(status().isOk())
@@ -62,6 +64,7 @@ public class UserControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "test@example.com", roles = {"USER"})
     public void testCreateUser() throws Exception {
         User newUser = new User();
         newUser.setEmail("new@example.com");
@@ -78,6 +81,7 @@ public class UserControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "test@example.com", roles = {"USER"})
     public void testUpdateUser() throws Exception {
         User updateData = new User();
         updateData.setFirstName("UpdatedName");
@@ -92,17 +96,18 @@ public class UserControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "test@example.com", roles = {"USER"})
     public void testDeleteUser() throws Exception {
         mockMvc.perform(delete("/api/users/" + testUser.getId()))
                 .andExpect(status().isNoContent());
 
-        // Проверяем, что пользователь удален
         mockMvc.perform(get("/api/users"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0));
     }
 
     @Test
+    @WithMockUser(username = "test@example.com", roles = {"USER"})
     public void testCreateUserWithInvalidEmail() throws Exception {
         User invalidUser = new User();
         invalidUser.setEmail("invalid-email");
@@ -117,10 +122,11 @@ public class UserControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "test@example.com", roles = {"USER"})
     public void testCreateUserWithShortPassword() throws Exception {
         User invalidUser = new User();
         invalidUser.setEmail("valid@example.com");
-        invalidUser.setPassword("12"); // Меньше 3 символов
+        invalidUser.setPassword("12");
         invalidUser.setFirstName("Invalid");
         invalidUser.setLastName("User");
 
