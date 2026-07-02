@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Task Manager</title>
+    <style>
+        body { font-family: Arial; max-width: 500px; margin: 50px auto; }
+        input, button { display: block; width: 100%; margin: 10px 0; padding: 10px; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Task Manager</h1>
+    <div id="login">
+        <input type="email" id="email" placeholder="Email" value="hexlet@example.com">
+        <input type="password" id="password" placeholder="Password" value="qwerty">
+        <button onclick="login()">Login</button>
+        <div id="error" class="error"></div>
+    </div>
+    <div id="users" style="display:none">
+        <h2>Users</h2>
+        <ul id="list"></ul>
+        <button onclick="logout()">Logout</button>
+    </div>
+
+    <script>
+        let token = localStorage.getItem('token') || '';
+
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({username: email, password})
+                });
+                if (!res.ok) throw new Error('Invalid credentials');
+                token = await res.text();
+                localStorage.setItem('token', token);
+                document.getElementById('login').style.display = 'none';
+                document.getElementById('users').style.display = 'block';
+                loadUsers();
+            } catch(e) {
+                document.getElementById('error').textContent = e.message;
+            }
+        }
+
+        async function loadUsers() {
+            const res = await fetch('/api/users', {
+                headers: {'Authorization': `Bearer ${token}`}
+            });
+            const users = await res.json();
+            document.getElementById('list').innerHTML = users.map(u => 
+                `<li>${u.email} (${u.firstName} ${u.lastName})</li>`
+            ).join('');
+        }
+
+        function logout() {
+            token = '';
+            localStorage.removeItem('token');
+            document.getElementById('login').style.display = 'block';
+            document.getElementById('users').style.display = 'none';
+        }
+
+        if (token) {
+            document.getElementById('login').style.display = 'none';
+            document.getElementById('users').style.display = 'block';
+            loadUsers();
+        }
+    </script>
+</body>
+</html>
