@@ -31,20 +31,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
-        // Пропускаем запросы к /api/login и /welcome
-        String path = request.getServletPath();
-        if (path.equals("/api/login") || path.equals("/welcome")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         final String authHeader = request.getHeader("Authorization");
 
-        // Если нет токена — возвращаем 401
+        // Если токена нет — просто пропускаем запрос дальше
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-            response.getWriter().write("{\"error\": \"Unauthorized: Missing or invalid token\"}");
+            filterChain.doFilter(request, response);
             return;
         }
 
