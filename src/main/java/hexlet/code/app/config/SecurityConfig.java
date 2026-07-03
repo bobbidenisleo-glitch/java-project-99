@@ -39,9 +39,6 @@ public class SecurityConfig {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
-                .headers(headers -> headers
-                        .contentSecurityPolicy("default-src 'self'; connect-src 'self' https://java-project-99-p96b.onrender.com;")
-                )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/index.html", "/test.html", "/api/login", "/welcome").permitAll()
                         .anyRequest().authenticated()
