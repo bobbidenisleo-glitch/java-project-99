@@ -43,10 +43,13 @@ public class UserService {
         User existing = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Проверяем, что пользователь редактирует себя
         String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (!existing.getEmail().equals(currentUserEmail)) {
-            throw new RuntimeException("You can only edit your own profile");
+        boolean isAdmin = SecurityContextHolder.getContext().getAuthentication()
+                .getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        if (!isAdmin && !existing.getEmail().equals(currentUserEmail)) {
+            throw new RuntimeException("Only admin can edit other users");
         }
 
         if (updatedUser.getFirstName() != null) {
@@ -74,10 +77,12 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Проверяем, что пользователь удаляет себя
-        String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (!user.getEmail().equals(currentUserEmail)) {
-            throw new RuntimeException("You can only delete your own profile");
+        boolean isAdmin = SecurityContextHolder.getContext().getAuthentication()
+                .getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        if (!isAdmin) {
+            throw new RuntimeException("Only admin can delete users");
         }
 
         userRepository.deleteById(id);
