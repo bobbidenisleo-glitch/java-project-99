@@ -5,6 +5,7 @@ import hexlet.code.app.model.User;
 import hexlet.code.app.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -26,21 +27,22 @@ public class UserController {
 
     private final UserService userService;
 
-    // GET /api/users - получение списка всех пользователей
     @GetMapping
     public ResponseEntity<List<UserDTO>> getAllUsers() {
         List<UserDTO> users = userService.getAllUsers();
-        return ResponseEntity.ok(users);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("X-Total-Count", String.valueOf(users.size()));
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(users);
     }
 
-    // GET /api/users/{id} - получение пользователя по id
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
         UserDTO user = userService.getUserById(id);
         return ResponseEntity.ok(user);
     }
 
-    // POST /api/users - создание нового пользователя
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<UserDTO> createUser(@Valid @RequestBody User user) {
@@ -48,14 +50,12 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
-    // PUT /api/users/{id} - обновление пользователя
     @PutMapping("/{id}")
     public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody User user) {
         UserDTO updated = userService.updateUser(id, user);
         return ResponseEntity.ok(updated);
     }
 
-    // DELETE /api/users/{id} - удаление пользователя
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
