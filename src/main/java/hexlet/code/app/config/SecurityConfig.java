@@ -49,6 +49,7 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
                             "/welcome"
                     ).permitAll()
                     .requestMatchers("/api/task_statuses", "/api/task_statuses/**").authenticated()
+                    .requestMatchers("/api/tasks", "/api/tasks/**").authenticated()
                     .anyRequest().authenticated()
             )
             .sessionManagement(session -> session

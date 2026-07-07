@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 public class TaskStatusService {
 
     private final TaskStatusRepository taskStatusRepository;
+    private final TaskRepository taskRepository;
 
     public List<TaskStatusDTO> getAllStatuses() {
         return taskStatusRepository.findAll().stream()
@@ -57,11 +58,16 @@ public class TaskStatusService {
     }
 
     public void deleteStatus(Long id) {
-        if (!taskStatusRepository.existsById(id)) {
-            throw new RuntimeException("TaskStatus not found");
-        }
-        taskStatusRepository.deleteById(id);
+    TaskStatus status = taskStatusRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("TaskStatus not found"));
+
+    // Проверяем, есть ли у статуса задачи
+    if (taskRepository.findByTaskStatusId(id).isPresent()) {
+        throw new RuntimeException("Cannot delete status with tasks");
     }
+
+    taskStatusRepository.deleteById(id);
+}
 
     private TaskStatusDTO toDTO(TaskStatus status) {
         TaskStatusDTO dto = new TaskStatusDTO();
