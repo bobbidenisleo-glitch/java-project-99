@@ -2,6 +2,7 @@ package hexlet.code.app.service;
 
 import hexlet.code.app.dto.LabelDTO;
 import hexlet.code.app.model.Label;
+import hexlet.code.app.model.Task;
 import hexlet.code.app.repository.LabelRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -54,10 +55,14 @@ public class LabelService {
     }
 
     public void deleteLabel(Long id) {
-        if (!labelRepository.existsById(id)) {
-            throw new RuntimeException("Label not found");
+        Label label = labelRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Label not found"));
+
+        // Проверяем, есть ли задачи с этой меткой
+        if (label.getTasks() != null && !label.getTasks().isEmpty()) {
+            throw new RuntimeException("Cannot delete label with tasks");
         }
-        // TODO: добавить проверку на связь с задачами
+
         labelRepository.deleteById(id);
     }
 
