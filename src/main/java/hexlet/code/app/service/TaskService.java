@@ -1,6 +1,8 @@
 package hexlet.code.app.service;
 
+import hexlet.code.app.dto.TaskCreateDTO;
 import hexlet.code.app.dto.TaskDTO;
+import hexlet.code.app.mapper.TaskMapper;
 import hexlet.code.app.model.Task;
 import hexlet.code.app.model.TaskStatus;
 import hexlet.code.app.model.User;
@@ -20,64 +22,52 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final TaskStatusRepository taskStatusRepository;
     private final UserRepository userRepository;
+    private final TaskMapper taskMapper;
 
     public List<TaskDTO> getAllTasks() {
         return taskRepository.findAll().stream()
-                .map(this::toDTO)
+                .map(taskMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
     public TaskDTO getTaskById(Long id) {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
-        return toDTO(task);
+        return taskMapper.toDTO(task);
     }
 
-    public TaskDTO createTask(Task task) {
-    // Проверяем и устанавливаем статус
-    if (task.getTaskStatus() != null && task.getTaskStatus().getId() != null) {
-        TaskStatus status = taskStatusRepository.findById(task.getTaskStatus().getId())
-                .orElseThrow(() -> new RuntimeException("TaskStatus not found"));
-        task.setTaskStatus(status);
+    public TaskDTO createTask(TaskCreateDTO dto) {
+        Task task = taskMapper.toEntity(dto);
+        Task saved = taskRepository.save(task);
+        return taskMapper.toDTO(saved);
     }
 
-    // Проверяем и устанавливаем исполнителя
-    if (task.getAssignee() != null && task.getAssignee().getId() != null) {
-        User assignee = userRepository.findById(task.getAssignee().getId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        task.setAssignee(assignee);
-    }
-
-    Task saved = taskRepository.save(task);
-    return toDTO(saved);
-}
-
-    public TaskDTO updateTask(Long id, Task updatedTask) {
+    public TaskDTO updateTask(Long id, TaskCreateDTO dto) {
         Task existing = taskRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
 
-        if (updatedTask.getName() != null) {
-            existing.setName(updatedTask.getName());
+        if (dto.getName() != null) {
+            existing.setName(dto.getName());
         }
-        if (updatedTask.getDescription() != null) {
-            existing.setDescription(updatedTask.getDescription());
+        if (dto.getDescription() != null) {
+            existing.setDescription(dto.getDescription());
         }
-        if (updatedTask.getIndex() != null) {
-            existing.setIndex(updatedTask.getIndex());
+        if (dto.getIndex() != null) {
+            existing.setIndex(dto.getIndex());
         }
-        if (updatedTask.getTaskStatus() != null && updatedTask.getTaskStatus().getId() != null) {
-            TaskStatus status = taskStatusRepository.findById(updatedTask.getTaskStatus().getId())
+        if (dto.getTaskStatusId() != null) {
+            TaskStatus status = taskStatusRepository.findById(dto.getTaskStatusId())
                     .orElseThrow(() -> new RuntimeException("TaskStatus not found"));
             existing.setTaskStatus(status);
         }
-        if (updatedTask.getAssignee() != null && updatedTask.getAssignee().getId() != null) {
-            User assignee = userRepository.findById(updatedTask.getAssignee().getId())
+        if (dto.getAssigneeId() != null) {
+            User assignee = userRepository.findById(dto.getAssigneeId())
                     .orElseThrow(() -> new RuntimeException("User not found"));
             existing.setAssignee(assignee);
         }
 
         Task saved = taskRepository.save(existing);
-        return toDTO(saved);
+        return taskMapper.toDTO(saved);
     }
 
     public void deleteTask(Long id) {
@@ -85,23 +75,5 @@ public class TaskService {
             throw new RuntimeException("Task not found");
         }
         taskRepository.deleteById(id);
-    }
-
-    private TaskDTO toDTO(Task task) {
-        TaskDTO dto = new TaskDTO();
-        dto.setId(task.getId());
-        dto.setIndex(task.getIndex());
-        dto.setName(task.getName());
-        dto.setDescription(task.getDescription());
-        dto.setCreatedAt(task.getCreatedAt());
-
-        if (task.getTaskStatus() != null) {
-            dto.setTaskStatusId(task.getTaskStatus().getId());
-        }
-        if (task.getAssignee() != null) {
-            dto.setAssigneeId(task.getAssignee().getId());
-        }
-
-        return dto;
     }
 }
