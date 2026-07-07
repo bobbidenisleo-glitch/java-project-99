@@ -34,23 +34,23 @@ public class TaskService {
     }
 
     public TaskDTO createTask(Task task) {
-        // Проверяем, что статус существует
-        if (task.getTaskStatus() != null && task.getTaskStatus().getId() != null) {
-            TaskStatus status = taskStatusRepository.findById(task.getTaskStatus().getId())
-                    .orElseThrow(() -> new RuntimeException("TaskStatus not found"));
-            task.setTaskStatus(status);
-        }
-
-        // Проверяем, что исполнитель существует
-        if (task.getAssignee() != null && task.getAssignee().getId() != null) {
-            User assignee = userRepository.findById(task.getAssignee().getId())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-            task.setAssignee(assignee);
-        }
-
-        Task saved = taskRepository.save(task);
-        return toDTO(saved);
+    // Проверяем и устанавливаем статус
+    if (task.getTaskStatus() != null && task.getTaskStatus().getId() != null) {
+        TaskStatus status = taskStatusRepository.findById(task.getTaskStatus().getId())
+                .orElseThrow(() -> new RuntimeException("TaskStatus not found"));
+        task.setTaskStatus(status);
     }
+
+    // Проверяем и устанавливаем исполнителя
+    if (task.getAssignee() != null && task.getAssignee().getId() != null) {
+        User assignee = userRepository.findById(task.getAssignee().getId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        task.setAssignee(assignee);
+    }
+
+    Task saved = taskRepository.save(task);
+    return toDTO(saved);
+}
 
     public TaskDTO updateTask(Long id, Task updatedTask) {
         Task existing = taskRepository.findById(id)
