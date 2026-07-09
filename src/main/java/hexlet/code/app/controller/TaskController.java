@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/api/tasks")
@@ -32,14 +33,19 @@ public class TaskController {
     private final TaskStatusRepository taskStatusRepository;
 
     @GetMapping
-    public ResponseEntity<List<TaskDTO>> getAllTasks() {
-        List<TaskDTO> tasks = taskService.getAllTasks();
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("X-Total-Count", String.valueOf(tasks.size()));
-        return ResponseEntity.ok()
-                .headers(headers)
-                .body(tasks);
-    }
+public ResponseEntity<List<TaskDTO>> getAllTasks(
+        @RequestParam(required = false) String titleCont,
+        @RequestParam(required = false) Long assigneeId,
+        @RequestParam(required = false) String status,
+        @RequestParam(required = false) Long labelId
+) {
+    List<TaskDTO> tasks = taskService.getAllTasks(titleCont, assigneeId, status, labelId);
+    HttpHeaders headers = new HttpHeaders();
+    headers.add("X-Total-Count", String.valueOf(tasks.size()));
+    return ResponseEntity.ok()
+            .headers(headers)
+            .body(tasks);
+}
 
     @GetMapping("/{id}")
     public ResponseEntity<TaskDTO> getTaskById(@PathVariable Long id) {

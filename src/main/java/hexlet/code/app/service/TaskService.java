@@ -10,6 +10,7 @@ import hexlet.code.app.repository.TaskRepository;
 import hexlet.code.app.repository.TaskStatusRepository;
 import hexlet.code.app.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,8 +25,35 @@ public class TaskService {
     private final UserRepository userRepository;
     private final TaskMapper taskMapper;
 
-    public List<TaskDTO> getAllTasks() {
-        return taskRepository.findAll().stream()
+    public List<TaskDTO> getAllTasks(String titleCont, Long assigneeId, String status, Long labelId) {
+        Specification<Task> spec = Specification.where(null);
+        
+        if (titleCont != null && !titleCont.isEmpty()) {
+            spec = spec.and((root, query, cb) -> 
+                cb.like(cb.lower(root.get("name")), "%" + titleCont.toLowerCase() + "%")
+            );
+        }
+        
+        if (assigneeId != null) {
+            spec = spec.and((root, query, cb) -> 
+                cb.equal(root.get("assignee").get("id"), assigneeId)
+            );
+        }
+        
+        if (status != null && !status.isEmpty()) {
+            spec = spec.and((root, query, cb) -> 
+                cb.equal(root.get("taskStatus").get("slug"), status)
+            );
+        }
+        
+        if (labelId != null) {
+            spec = spec.and((root, query, cb) -> 
+                cb.isMember(labelId, root.get("labels"))
+            );
+        }
+        
+        List<Task> tasks = taskRepository.findAll(spec);
+        return tasks.stream()
                 .map(taskMapper::toDTO)
                 .collect(Collectors.toList());
     }
@@ -64,6 +92,9 @@ public class TaskService {
             User assignee = userRepository.findById(dto.getAssigneeId())
                     .orElseThrow(() -> new RuntimeException("User not found"));
             existing.setAssignee(assignee);
+        }
+        if (dto.getLabelIds() != null && !dto.getLabelIds().isEmpty()) {
+            // TODO: обновить метки
         }
 
         Task saved = taskRepository.save(existing);
