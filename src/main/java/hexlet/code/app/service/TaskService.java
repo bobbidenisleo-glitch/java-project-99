@@ -28,28 +28,33 @@ public class TaskService {
     public List<TaskDTO> getAllTasks(String titleCont, Long assigneeId, String status, Long labelId) {
         Specification<Task> spec = Specification.where(null);
         
+        // Фильтр по названию (содержит подстроку)
         if (titleCont != null && !titleCont.isEmpty()) {
             spec = spec.and((root, query, cb) -> 
                 cb.like(cb.lower(root.get("name")), "%" + titleCont.toLowerCase() + "%")
             );
         }
         
+        // Фильтр по исполнителю
         if (assigneeId != null) {
             spec = spec.and((root, query, cb) -> 
                 cb.equal(root.get("assignee").get("id"), assigneeId)
             );
         }
         
+        // Фильтр по статусу (по слагу)
         if (status != null && !status.isEmpty()) {
             spec = spec.and((root, query, cb) -> 
                 cb.equal(root.get("taskStatus").get("slug"), status)
             );
         }
         
+        // Фильтр по метке
         if (labelId != null) {
-            spec = spec.and((root, query, cb) -> 
-                cb.isMember(labelId, root.get("labels"))
-            );
+            spec = spec.and((root, query, cb) -> {
+                var labelsJoin = root.join("labels");
+                return cb.equal(labelsJoin.get("id"), labelId);
+            });
         }
         
         List<Task> tasks = taskRepository.findAll(spec);
