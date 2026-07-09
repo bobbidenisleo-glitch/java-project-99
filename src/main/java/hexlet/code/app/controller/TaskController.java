@@ -2,6 +2,8 @@ package hexlet.code.app.controller;
 
 import hexlet.code.app.dto.TaskCreateDTO;
 import hexlet.code.app.dto.TaskDTO;
+import hexlet.code.app.model.TaskStatus;
+import hexlet.code.app.repository.TaskStatusRepository;
 import hexlet.code.app.service.TaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/tasks")
@@ -26,6 +29,7 @@ import java.util.List;
 public class TaskController {
 
     private final TaskService taskService;
+    private final TaskStatusRepository taskStatusRepository;
 
     @GetMapping
     public ResponseEntity<List<TaskDTO>> getAllTasks() {
@@ -45,8 +49,41 @@ public class TaskController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<TaskDTO> createTask(@Valid @RequestBody TaskCreateDTO taskCreateDTO) {
-        TaskDTO created = taskService.createTask(taskCreateDTO);
+    public ResponseEntity<TaskDTO> createTask(@Valid @RequestBody Map<String, Object> taskData) {
+        TaskCreateDTO dto = new TaskCreateDTO();
+        
+        // Преобразуем поля из фронтенда
+        dto.setName((String) taskData.getOrDefault("title", taskData.get("name")));
+        dto.setDescription((String) taskData.getOrDefault("content", taskData.get("description")));
+        dto.setIndex(taskData.get("index") != null ? ((Number) taskData.get("index")).intValue() : null);
+        
+        // Преобразуем статус (slug → id)
+        if (taskData.containsKey("status")) {
+            String statusSlug = (String) taskData.get("status");
+            TaskStatus status = taskStatusRepository.findBySlug(statusSlug)
+                    .orElseThrow(() -> new RuntimeException("Status not found: " + statusSlug));
+            dto.setTaskStatusId(status.getId());
+        } else if (taskData.containsKey("taskStatusId")) {
+            dto.setTaskStatusId(((Number) taskData.get("taskStatusId")).longValue());
+        }
+        
+        // Преобразуем исполнителя
+        if (taskData.containsKey("assignee_id")) {
+            dto.setAssigneeId(((Number) taskData.get("assignee_id")).longValue());
+        } else if (taskData.containsKey("assigneeId")) {
+            dto.setAssigneeId(((Number) taskData.get("assigneeId")).longValue());
+        }
+        
+        // Преобразуем метки
+        if (taskData.containsKey("taskLabelIds")) {
+            List<Long> labelIds = (List<Long>) taskData.get("taskLabelIds");
+            dto.setLabelIds(labelIds);
+        } else if (taskData.containsKey("labelIds")) {
+            List<Long> labelIds = (List<Long>) taskData.get("labelIds");
+            dto.setLabelIds(labelIds);
+        }
+        
+        TaskDTO created = taskService.createTask(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
