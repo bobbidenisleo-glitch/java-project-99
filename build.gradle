@@ -66,7 +66,7 @@ sonarqube {
 }
 
 sentry {
-    includeSourceContext = true
+    includeSourceContext = false
     org = "java-project-99-42"
     projectName = "java"
     authToken = System.getenv("SENTRY_AUTH_TOKEN")
