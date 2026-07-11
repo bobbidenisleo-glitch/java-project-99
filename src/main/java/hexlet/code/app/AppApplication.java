@@ -17,6 +17,14 @@ public class AppApplication {
             options.setDebug(true);
         });
 
+        // Тестовый вызов для проверки Sentry
+        try {
+            throw new Exception("Test exception from Sentry");
+        } catch (Exception e) {
+            Sentry.captureException(e);
+            System.out.println("Test exception sent to Sentry");
+        }
+
         SpringApplication.run(AppApplication.class, args);
     }
 
