@@ -46,11 +46,12 @@ public class SecurityConfig {
                                 "/test.html",
                                 "/assets/**",
                                 "/api/login",
-                                "/welcome"
+                                "/welcome",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/api-docs/**",
+                                "/v3/api-docs/**"
                         ).permitAll()
-                        .requestMatchers("/api/task_statuses", "/api/task_statuses/**").authenticated()
-                        .requestMatchers("/api/tasks", "/api/tasks/**").authenticated()
-                        .requestMatchers("/api/labels", "/api/labels/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

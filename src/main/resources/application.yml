@@ -3,6 +3,18 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: update
+
 jwt:
   secret: ${JWT_SECRET:yourVerySecretKeyThatIsAtLeast32CharactersLong}
   expiration: 86400000
+
+springdoc:
+  api-docs:
+    path: /api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+    tryItOutEnabled: true
+    filter: true
