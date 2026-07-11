@@ -41,7 +41,7 @@ public class TaskStatusControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "hexlet@example.com", roles = {"USER"})
+    @WithMockUser(username = "test@example.com", roles = {"ADMIN"})
     public void testGetAllStatuses() throws Exception {
         mockMvc.perform(get("/api/task_statuses"))
                 .andExpect(status().isOk())
@@ -51,7 +51,7 @@ public class TaskStatusControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "hexlet@example.com", roles = {"USER"})
+    @WithMockUser(username = "test@example.com", roles = {"ADMIN"})
     public void testGetStatusById() throws Exception {
         mockMvc.perform(get("/api/task_statuses/" + testStatus.getId()))
                 .andExpect(status().isOk())
@@ -60,7 +60,7 @@ public class TaskStatusControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "hexlet@example.com", roles = {"USER"})
+    @WithMockUser(username = "test@example.com", roles = {"ADMIN"})
     public void testCreateStatus() throws Exception {
         TaskStatus newStatus = new TaskStatus();
         newStatus.setName("New Status");
@@ -75,7 +75,7 @@ public class TaskStatusControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "hexlet@example.com", roles = {"USER"})
+    @WithMockUser(username = "test@example.com", roles = {"ADMIN"})
     public void testUpdateStatus() throws Exception {
         TaskStatus updateData = new TaskStatus();
         updateData.setName("Updated Status");
@@ -89,7 +89,7 @@ public class TaskStatusControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "hexlet@example.com", roles = {"USER"})
+    @WithMockUser(username = "test@example.com", roles = {"ADMIN"})
     public void testDeleteStatus() throws Exception {
         mockMvc.perform(delete("/api/task_statuses/" + testStatus.getId()))
                 .andExpect(status().isNoContent());
@@ -100,7 +100,7 @@ public class TaskStatusControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "hexlet@example.com", roles = {"USER"})
+    @WithMockUser(username = "test@example.com", roles = {"ADMIN"})
     public void testCreateStatusWithDuplicateSlug() throws Exception {
         TaskStatus duplicate = new TaskStatus();
         duplicate.setName("Duplicate Status");

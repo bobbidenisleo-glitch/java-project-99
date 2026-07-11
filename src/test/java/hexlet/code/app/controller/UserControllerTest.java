@@ -43,7 +43,7 @@ public class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "test@example.com", roles = {"USER"})
+    @WithMockUser(username = "test@example.com", roles = {"ADMIN"})
     public void testGetAllUsers() throws Exception {
         mockMvc.perform(get("/api/users"))
                 .andExpect(status().isOk())
@@ -53,7 +53,7 @@ public class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "test@example.com", roles = {"USER"})
+    @WithMockUser(username = "test@example.com", roles = {"ADMIN"})
     public void testGetUserById() throws Exception {
         mockMvc.perform(get("/api/users/" + testUser.getId()))
                 .andExpect(status().isOk())
@@ -63,7 +63,7 @@ public class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "test@example.com", roles = {"USER"})
+    @WithMockUser(username = "test@example.com", roles = {"ADMIN"})
     public void testCreateUser() throws Exception {
         User newUser = new User();
         newUser.setEmail("new@example.com");
@@ -80,7 +80,7 @@ public class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "test@example.com", roles = {"USER"})
+    @WithMockUser(username = "test@example.com", roles = {"ADMIN"})
     public void testUpdateUser() throws Exception {
         User updateData = new User();
         updateData.setFirstName("UpdatedName");
@@ -95,18 +95,18 @@ public class UserControllerTest {
     }
 
     @Test
-@WithMockUser(username = "test@example.com", roles = {"ADMIN"})
-public void testDeleteUser() throws Exception {
-    mockMvc.perform(delete("/api/users/" + testUser.getId()))
-            .andExpect(status().isNoContent());
+    @WithMockUser(username = "test@example.com", roles = {"ADMIN"})
+    public void testDeleteUser() throws Exception {
+        mockMvc.perform(delete("/api/users/" + testUser.getId()))
+                .andExpect(status().isNoContent());
 
-    mockMvc.perform(get("/api/users"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.length()").value(0));
-}
+        mockMvc.perform(get("/api/users"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
+    }
 
     @Test
-    @WithMockUser(username = "test@example.com", roles = {"USER"})
+    @WithMockUser(username = "test@example.com", roles = {"ADMIN"})
     public void testCreateUserWithInvalidEmail() throws Exception {
         User invalidUser = new User();
         invalidUser.setEmail("invalid-email");
@@ -121,7 +121,7 @@ public void testDeleteUser() throws Exception {
     }
 
     @Test
-    @WithMockUser(username = "test@example.com", roles = {"USER"})
+    @WithMockUser(username = "test@example.com", roles = {"ADMIN"})
     public void testCreateUserWithShortPassword() throws Exception {
         User invalidUser = new User();
         invalidUser.setEmail("valid@example.com");
