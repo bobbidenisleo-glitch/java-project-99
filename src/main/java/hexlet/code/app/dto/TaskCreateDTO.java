@@ -1,6 +1,5 @@
 package hexlet.code.app.dto;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,7 +17,7 @@ public class TaskCreateDTO {
     private List<Long> labelIds;
 
     // Поля для совместимости с тестами
-    @NotBlank
+    // @NotBlank
     private String title;
 
     private String content;
