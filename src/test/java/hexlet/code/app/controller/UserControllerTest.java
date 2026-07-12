@@ -97,12 +97,23 @@ public class UserControllerTest {
     @Test
     @WithMockUser(username = "test@example.com", roles = {"ADMIN"})
     public void testDeleteUser() throws Exception {
-        mockMvc.perform(delete("/api/users/" + testUser.getId()))
+        // Создаём нового пользователя специально для удаления
+        User userToDelete = new User();
+        userToDelete.setEmail("delete@example.com");
+        userToDelete.setPassword("deletepass");
+        userToDelete.setFirstName("Delete");
+        userToDelete.setLastName("User");
+        User savedUser = userRepository.save(userToDelete);
+
+        // Удаляем созданного пользователя
+        mockMvc.perform(delete("/api/users/" + savedUser.getId()))
                 .andExpect(status().isNoContent());
 
+        // Проверяем, что пользователь удалён (остался только testUser)
         mockMvc.perform(get("/api/users"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(0));
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].email").value("test@example.com"));
     }
 
     @Test
