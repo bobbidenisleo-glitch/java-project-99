@@ -59,11 +59,18 @@ jacocoTestReport {
     dependsOn test
     reports {
         xml.required = true
+        csv.required = false
         html.required = true
+        xml.outputLocation = file("$buildDir/reports/jacoco/test/jacocoTestReport.xml")
     }
 }
 
 test {
+    finalizedBy jacocoTestReport
+}
+
+tasks.withType(Test) {
+    useJUnitPlatform()
     finalizedBy jacocoTestReport
 }
 
@@ -75,7 +82,7 @@ sonarqube {
         property 'sonar.organization', 'bobbidenisleo-glitch'
         property 'sonar.sources', 'src/main/java'
         property 'sonar.tests', 'src/test/java'
-        property 'sonar.coverage.jacoco.xmlReportPaths', 'build/reports/jacoco/test/html/index.html'
+        property 'sonar.coverage.jacoco.xmlReportPaths', 'build/reports/jacoco/test/jacocoTestReport.xml'
     }
 }
 
