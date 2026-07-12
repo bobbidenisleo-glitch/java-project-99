@@ -18,6 +18,7 @@ public class TaskDTO {
     private String status;
     private Long taskStatusId;
     private Long assigneeId;
-    private List<Long> taskLabelIds;  // ← ИЗМЕНЕНО
+    private List<Long> labelIds;        // ← ОСТАВЛЯЕМ ДЛЯ СОВМЕСТИМОСТИ
+    private List<Long> taskLabelIds;    // ← ДЛЯ ТЕСТОВ
     private LocalDate createdAt;
 }

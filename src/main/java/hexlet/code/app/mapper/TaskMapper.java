@@ -26,24 +26,52 @@ public class TaskMapper {
 
     public Task toEntity(TaskCreateDTO dto) {
         Task task = new Task();
+
+        // Основные поля
         task.setName(dto.getName());
         task.setDescription(dto.getDescription());
         task.setIndex(dto.getIndex());
 
+        // Совместимость с тестами: title -> name
+        if (dto.getTitle() != null) {
+            task.setName(dto.getTitle());
+        }
+
+        // Совместимость с тестами: content -> description
+        if (dto.getContent() != null) {
+            task.setDescription(dto.getContent());
+        }
+
+        // Устанавливаем статус
         if (dto.getTaskStatusId() != null) {
             TaskStatus status = taskStatusRepository.findById(dto.getTaskStatusId())
                     .orElseThrow(() -> new RuntimeException("TaskStatus not found"));
             task.setTaskStatus(status);
         }
 
+        // Совместимость с тестами: status (слаг) -> TaskStatus
+        if (dto.getStatus() != null) {
+            TaskStatus status = taskStatusRepository.findBySlug(dto.getStatus())
+                    .orElseThrow(() -> new RuntimeException("Status not found: " + dto.getStatus()));
+            task.setTaskStatus(status);
+        }
+
+        // Устанавливаем исполнителя
         if (dto.getAssigneeId() != null) {
             User assignee = userRepository.findById(dto.getAssigneeId())
                     .orElseThrow(() -> new RuntimeException("User not found"));
             task.setAssignee(assignee);
         }
 
+        // Устанавливаем метки
         if (dto.getLabelIds() != null && !dto.getLabelIds().isEmpty()) {
             List<Label> labels = labelRepository.findAllById(dto.getLabelIds());
+            task.setLabels(labels);
+        }
+
+        // Совместимость с тестами: taskLabelIds -> Label
+        if (dto.getTaskLabelIds() != null && !dto.getTaskLabelIds().isEmpty()) {
+            List<Label> labels = labelRepository.findAllById(dto.getTaskLabelIds());
             task.setLabels(labels);
         }
 
@@ -60,7 +88,6 @@ public class TaskMapper {
         dto.setIndex(task.getIndex());
         dto.setCreatedAt(task.getCreatedAt());
 
-        // status — это слаг статуса
         dto.setStatus(task.getTaskStatus() != null ? task.getTaskStatus().getSlug() : null);
 
         if (task.getTaskStatus() != null) {
@@ -70,12 +97,15 @@ public class TaskMapper {
             dto.setAssigneeId(task.getAssignee().getId());
         }
 
-        // taskLabelIds вместо labelIds
+        // Метки
         if (task.getLabels() != null && !task.getLabels().isEmpty()) {
-            dto.setTaskLabelIds(task.getLabels().stream()
+            List<Long> labelIds = task.getLabels().stream()
                     .map(Label::getId)
-                    .collect(Collectors.toList()));
+                    .collect(Collectors.toList());
+            dto.setLabelIds(labelIds);
+            dto.setTaskLabelIds(labelIds);
         } else {
+            dto.setLabelIds(new ArrayList<>());
             dto.setTaskLabelIds(new ArrayList<>());
         }
 
