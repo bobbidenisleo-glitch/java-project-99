@@ -54,11 +54,14 @@ public class TaskMapper {
         TaskDTO dto = new TaskDTO();
         dto.setId(task.getId());
         dto.setName(task.getName());
-        dto.setTitle(task.getName());              // ← ДЛЯ ТЕСТОВ
+        dto.setTitle(task.getName());
         dto.setDescription(task.getDescription());
-        dto.setContent(task.getDescription());     // ← ДЛЯ ТЕСТОВ
+        dto.setContent(task.getDescription());
         dto.setIndex(task.getIndex());
         dto.setCreatedAt(task.getCreatedAt());
+
+        // status — это слаг статуса
+        dto.setStatus(task.getTaskStatus() != null ? task.getTaskStatus().getSlug() : null);
 
         if (task.getTaskStatus() != null) {
             dto.setTaskStatusId(task.getTaskStatus().getId());
