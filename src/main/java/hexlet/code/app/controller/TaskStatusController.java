@@ -1,5 +1,6 @@
 package hexlet.code.app.controller;
 
+import hexlet.code.app.dto.TaskStatusCreateDTO;
 import hexlet.code.app.dto.TaskStatusDTO;
 import hexlet.code.app.model.TaskStatus;
 import hexlet.code.app.service.TaskStatusService;
@@ -45,13 +46,21 @@ public class TaskStatusController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<TaskStatusDTO> createStatus(@Valid @RequestBody TaskStatus status) {
+    public ResponseEntity<TaskStatusDTO> createStatus(@Valid @RequestBody TaskStatusCreateDTO statusCreateDTO) {
+        TaskStatus status = new TaskStatus();
+        status.setName(statusCreateDTO.getName());
+        status.setSlug(statusCreateDTO.getSlug());
+        
         TaskStatusDTO created = taskStatusService.createStatus(status);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<TaskStatusDTO> updateStatus(@PathVariable Long id, @RequestBody TaskStatus status) {
+    public ResponseEntity<TaskStatusDTO> updateStatus(@PathVariable Long id, @RequestBody TaskStatusCreateDTO statusCreateDTO) {
+        TaskStatus status = new TaskStatus();
+        status.setName(statusCreateDTO.getName());
+        status.setSlug(statusCreateDTO.getSlug());
+        
         TaskStatusDTO updated = taskStatusService.updateStatus(id, status);
         return ResponseEntity.ok(updated);
     }

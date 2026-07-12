@@ -1,5 +1,6 @@
 package hexlet.code.app.controller;
 
+import hexlet.code.app.dto.UserCreateDTO;
 import hexlet.code.app.dto.UserDTO;
 import hexlet.code.app.model.User;
 import hexlet.code.app.service.UserService;
@@ -45,13 +46,25 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<UserDTO> createUser(@Valid @RequestBody User user) {
+    public ResponseEntity<UserDTO> createUser(@Valid @RequestBody UserCreateDTO userCreateDTO) {
+        User user = new User();
+        user.setEmail(userCreateDTO.getEmail());
+        user.setPassword(userCreateDTO.getPassword());
+        user.setFirstName(userCreateDTO.getFirstName());
+        user.setLastName(userCreateDTO.getLastName());
+        
         UserDTO created = userService.createUser(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody User user) {
+    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody UserCreateDTO userCreateDTO) {
+        User user = new User();
+        user.setFirstName(userCreateDTO.getFirstName());
+        user.setLastName(userCreateDTO.getLastName());
+        user.setEmail(userCreateDTO.getEmail());
+        user.setPassword(userCreateDTO.getPassword());
+        
         UserDTO updated = userService.updateUser(id, user);
         return ResponseEntity.ok(updated);
     }
