@@ -58,6 +58,7 @@ public class TaskMapper {
         dto.setId(task.getId());
         dto.setName(task.getName());
         dto.setDescription(task.getDescription());
+        dto.setContent(task.getDescription());  // ← ДОБАВЛЕНО ДЛЯ ТЕСТОВ
         dto.setIndex(task.getIndex());
         dto.setCreatedAt(task.getCreatedAt());
 
