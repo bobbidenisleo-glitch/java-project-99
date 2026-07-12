@@ -30,21 +30,18 @@ public class TaskMapper {
         task.setDescription(dto.getDescription());
         task.setIndex(dto.getIndex());
 
-        // Устанавливаем статус
         if (dto.getTaskStatusId() != null) {
             TaskStatus status = taskStatusRepository.findById(dto.getTaskStatusId())
                     .orElseThrow(() -> new RuntimeException("TaskStatus not found"));
             task.setTaskStatus(status);
         }
 
-        // Устанавливаем исполнителя
         if (dto.getAssigneeId() != null) {
             User assignee = userRepository.findById(dto.getAssigneeId())
                     .orElseThrow(() -> new RuntimeException("User not found"));
             task.setAssignee(assignee);
         }
 
-        // Устанавливаем метки
         if (dto.getLabelIds() != null && !dto.getLabelIds().isEmpty()) {
             List<Label> labels = labelRepository.findAllById(dto.getLabelIds());
             task.setLabels(labels);
@@ -57,8 +54,9 @@ public class TaskMapper {
         TaskDTO dto = new TaskDTO();
         dto.setId(task.getId());
         dto.setName(task.getName());
+        dto.setTitle(task.getName());              // ← ДЛЯ ТЕСТОВ
         dto.setDescription(task.getDescription());
-        dto.setContent(task.getDescription());  // ← ДОБАВЛЕНО ДЛЯ ТЕСТОВ
+        dto.setContent(task.getDescription());     // ← ДЛЯ ТЕСТОВ
         dto.setIndex(task.getIndex());
         dto.setCreatedAt(task.getCreatedAt());
 

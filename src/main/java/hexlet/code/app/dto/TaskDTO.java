@@ -12,8 +12,9 @@ public class TaskDTO {
     private Long id;
     private Integer index;
     private String name;
+    private String title;          // ← ДОБАВЛЕНО ДЛЯ ТЕСТОВ
     private String description;
-    private String content;  // ← ДОБАВЛЕНО ДЛЯ ТЕСТОВ
+    private String content;        // ← ДОБАВЛЕНО ДЛЯ ТЕСТОВ
     private Long taskStatusId;
     private Long assigneeId;
     private List<Long> labelIds;
