@@ -69,12 +69,14 @@ public class TaskMapper {
         if (task.getAssignee() != null) {
             dto.setAssigneeId(task.getAssignee().getId());
         }
+
+        // taskLabelIds вместо labelIds
         if (task.getLabels() != null && !task.getLabels().isEmpty()) {
-            dto.setLabelIds(task.getLabels().stream()
+            dto.setTaskLabelIds(task.getLabels().stream()
                     .map(Label::getId)
                     .collect(Collectors.toList()));
         } else {
-            dto.setLabelIds(new ArrayList<>());
+            dto.setTaskLabelIds(new ArrayList<>());
         }
 
         return dto;
