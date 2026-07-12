@@ -1,4 +1,4 @@
-package hexlet.code.app;
+package hexlet.code;
 
 import io.sentry.Sentry;
 import org.springframework.boot.SpringApplication;
