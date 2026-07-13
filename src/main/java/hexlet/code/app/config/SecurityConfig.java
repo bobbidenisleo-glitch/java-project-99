@@ -66,10 +66,11 @@ public class SecurityConfig {
         return http.build();
     }
 
+    // ⬇️ ИСПРАВЛЕННЫЙ МЕТОД ⬇️
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService);
+        // В Spring Security 6.x конструктор принимает только UserDetailsService
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
@@ -93,4 +94,3 @@ public class SecurityConfig {
         return source;
     }
 }
-
