@@ -26,7 +26,7 @@ public class TaskService {
     private final TaskMapper taskMapper;
 
     public List<TaskDTO> getAllTasks(String titleCont, Long assigneeId, String status, Long labelId) {
-        Specification<Task> spec = Specification.where(null);
+        Specification<Task> spec = (root, query, cb) -> cb.conjunction();
         
         if (titleCont != null && !titleCont.isEmpty()) {
             spec = spec.and((root, query, cb) -> 
