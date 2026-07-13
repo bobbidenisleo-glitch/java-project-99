@@ -102,6 +102,7 @@ public class TaskControllerTest {
                 .content(objectMapper.writeValueAsString(newTask)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name").value("New Task"))
+                .andExpect(jsonPath("$.title").value("New Task"))
                 .andExpect(jsonPath("$.description").value("New Description"));
     }
 

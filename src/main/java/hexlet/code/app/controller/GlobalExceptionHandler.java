@@ -12,11 +12,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Map<String, String>> handleRuntimeException(RuntimeException e) {
-        // Если сообщение содержит "only", значит это ошибка прав
-        if (e.getMessage().contains("only")) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("error", e.getMessage()));
-        }
+        // Логируем ошибку для диагностики
+        e.printStackTrace();
+        System.out.println("=== EXCEPTION CLASS: " + e.getClass().getName());
+        System.out.println("=== EXCEPTION MESSAGE: " + e.getMessage());
+
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(Map.of("error", e.getMessage()));
     }

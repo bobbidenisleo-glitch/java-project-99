@@ -56,11 +56,21 @@ public class TaskMapper {
             task.setTaskStatus(status);
         }
 
+        // Совместимость с Entity: taskStatus
+        if (dto.getTaskStatus() != null) {
+            task.setTaskStatus(dto.getTaskStatus());
+        }
+
         // Устанавливаем исполнителя
         if (dto.getAssigneeId() != null) {
             User assignee = userRepository.findById(dto.getAssigneeId())
                     .orElseThrow(() -> new RuntimeException("User not found"));
             task.setAssignee(assignee);
+        }
+
+        // Совместимость с Entity: assignee
+        if (dto.getAssignee() != null) {
+            task.setAssignee(dto.getAssignee());
         }
 
         // Устанавливаем метки
@@ -72,6 +82,12 @@ public class TaskMapper {
         // Совместимость с тестами: taskLabelIds -> Label
         if (dto.getTaskLabelIds() != null && !dto.getTaskLabelIds().isEmpty()) {
             List<Label> labels = labelRepository.findAllById(dto.getTaskLabelIds());
+            task.setLabels(labels);
+        }
+
+        // Совместимость с тестами: labels -> Label
+        if (dto.getLabels() != null && !dto.getLabels().isEmpty()) {
+            List<Label> labels = labelRepository.findAllById(dto.getLabels());
             task.setLabels(labels);
         }
 
