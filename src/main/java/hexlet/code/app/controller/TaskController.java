@@ -30,17 +30,12 @@ public class TaskController {
 
     @GetMapping
     public ResponseEntity<List<TaskDTO>> getAllTasks(
-            @RequestParam(required = false, defaultValue = "") String titleCont,
+            @RequestParam(required = false) String titleCont,
             @RequestParam(required = false) Long assigneeId,
-            @RequestParam(required = false, defaultValue = "") String status,
+            @RequestParam(required = false) String status,
             @RequestParam(required = false) Long labelId
     ) {
-        List<TaskDTO> tasks = taskService.getAllTasks(
-                titleCont.isEmpty() ? null : titleCont,
-                assigneeId,
-                status.isEmpty() ? null : status,
-                labelId
-        );
+        List<TaskDTO> tasks = taskService.getAllTasks(titleCont, assigneeId, status, labelId);
         HttpHeaders headers = new HttpHeaders();
         headers.add("X-Total-Count", String.valueOf(tasks.size()));
         return ResponseEntity.ok()
