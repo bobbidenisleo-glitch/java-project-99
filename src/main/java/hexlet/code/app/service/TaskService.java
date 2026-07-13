@@ -78,8 +78,14 @@ public class TaskService {
         if (dto.getName() != null) {
             existing.setName(dto.getName());
         }
+        if (dto.getTitle() != null) {
+            existing.setName(dto.getTitle());
+        }
         if (dto.getDescription() != null) {
             existing.setDescription(dto.getDescription());
+        }
+        if (dto.getContent() != null) {
+            existing.setDescription(dto.getContent());
         }
         if (dto.getIndex() != null) {
             existing.setIndex(dto.getIndex());
@@ -89,10 +95,21 @@ public class TaskService {
                     .orElseThrow(() -> new RuntimeException("TaskStatus not found"));
             existing.setTaskStatus(status);
         }
+        if (dto.getStatus() != null) {
+            TaskStatus status = taskStatusRepository.findBySlug(dto.getStatus())
+                    .orElseThrow(() -> new RuntimeException("Status not found: " + dto.getStatus()));
+            existing.setTaskStatus(status);
+        }
+        if (dto.getTaskStatus() != null) {
+            existing.setTaskStatus(dto.getTaskStatus());
+        }
         if (dto.getAssigneeId() != null) {
             User assignee = userRepository.findById(dto.getAssigneeId())
                     .orElseThrow(() -> new RuntimeException("User not found"));
             existing.setAssignee(assignee);
+        }
+        if (dto.getAssignee() != null) {
+            existing.setAssignee(dto.getAssignee());
         }
         if (dto.getLabelIds() != null && !dto.getLabelIds().isEmpty()) {
             // TODO: обновить метки
