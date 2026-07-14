@@ -29,32 +29,32 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public List<TaskDTO> getAllTasks(String titleCont, Long assigneeId, String status, Long labelId) {
         Specification<Task> spec = (root, query, cb) -> cb.conjunction();
-        
+
         if (titleCont != null && !titleCont.isEmpty()) {
-            spec = spec.and((root, query, cb) -> 
+            spec = spec.and((root, query, cb) ->
                 cb.like(cb.lower(root.get("name")), "%" + titleCont.toLowerCase() + "%")
             );
         }
-        
+
         if (assigneeId != null) {
-            spec = spec.and((root, query, cb) -> 
+            spec = spec.and((root, query, cb) ->
                 cb.equal(root.get("assignee").get("id"), assigneeId)
             );
         }
-        
+
         if (status != null && !status.isEmpty()) {
-            spec = spec.and((root, query, cb) -> 
+            spec = spec.and((root, query, cb) ->
                 cb.equal(root.get("taskStatus").get("slug"), status)
             );
         }
-        
+
         if (labelId != null) {
             spec = spec.and((root, query, cb) -> {
                 var labelsJoin = root.join("labels");
                 return cb.equal(labelsJoin.get("id"), labelId);
             });
         }
-        
+
         return taskRepository.findAll(spec).stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
@@ -70,22 +70,45 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public TaskDTO createTask(TaskCreateDTO dto) {
         Task task = new Task();
-        task.setName(dto.getName());
-        task.setDescription(dto.getDescription());
+        
+        // Обработка name / title
+        String name = dto.getName();
+        if (name == null || name.isEmpty()) {
+            name = dto.getTitle();
+        }
+        task.setName(name);
+        
+        // Обработка description / content
+        String description = dto.getDescription();
+        if (description == null || description.isEmpty()) {
+            description = dto.getContent();
+        }
+        task.setDescription(description);
+        
         task.setIndex(dto.getIndex());
         
+        // Установка статуса по ID
         if (dto.getTaskStatusId() != null) {
             TaskStatus status = taskStatusRepository.findById(dto.getTaskStatusId())
                     .orElseThrow(() -> new RuntimeException("TaskStatus not found"));
             task.setTaskStatus(status);
         }
         
+        // Установка статуса по слагу (для тестов Hexlet)
+        if (dto.getStatus() != null && !dto.getStatus().isEmpty()) {
+            TaskStatus status = taskStatusRepository.findBySlug(dto.getStatus())
+                    .orElseThrow(() -> new RuntimeException("Status not found: " + dto.getStatus()));
+            task.setTaskStatus(status);
+        }
+        
+        // Установка исполнителя по ID
         if (dto.getAssigneeId() != null) {
             User assignee = userRepository.findById(dto.getAssigneeId())
                     .orElseThrow(() -> new RuntimeException("User not found"));
             task.setAssignee(assignee);
         }
         
+        // Установка меток
         if (dto.getLabelIds() != null && !dto.getLabelIds().isEmpty()) {
             List<Label> labels = labelRepository.findAllById(dto.getLabelIds());
             task.setLabels(labels);
