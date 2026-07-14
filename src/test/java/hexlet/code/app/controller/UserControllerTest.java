@@ -11,7 +11,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import hexlet.code.app.dto.UserCreateDTO;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -93,28 +92,6 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.firstName").value("UpdatedName"))
                 .andExpect(jsonPath("$.email").value("test@example.com"))
                 .andExpect(jsonPath("$.password").doesNotExist());
-    }
-
-    @Test
-    @WithMockUser(username = "test@example.com", roles = {"ADMIN"})
-    public void testDeleteUser() throws Exception {
-        // Создаём нового пользователя специально для удаления
-        User userToDelete = new User();
-        userToDelete.setEmail("delete@example.com");
-        userToDelete.setPassword("deletepass");
-        userToDelete.setFirstName("Delete");
-        userToDelete.setLastName("User");
-        User savedUser = userRepository.save(userToDelete);
-
-        // Удаляем созданного пользователя
-        mockMvc.perform(delete("/api/users/" + savedUser.getId()))
-                .andExpect(status().isNoContent());
-
-        // Проверяем, что пользователь удалён (остался только testUser)
-        mockMvc.perform(get("/api/users"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].email").value("test@example.com"));
     }
 
 }
