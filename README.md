@@ -36,18 +36,29 @@
 
 ### Установка и запуск
 
-1. Склонируйте репозиторий:
-   git clone git@github.com:bobbidenisleo-glitch/java-project-99.git
-   cd java-project-99
+1. Склонируйте репозиторий и перейдите в папку проекта:
+
+```bash
+git clone git@github.com:bobbidenisleo-glitch/java-project-99.git
+cd java-project-99
 
 2. Соберите проект:
-   ./gradlew build
+
+```bash
+./gradlew build
+```
 
 3. Запустите приложение:
-   ./gradlew bootRun
+
+```bash
+./gradlew bootRun
+```
 
 4. Откройте в браузере:
-   http://localhost:8080/welcome
+
+```
+http://localhost:8080/welcome
+```
 
 ## Статус сборки
 
