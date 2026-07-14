@@ -11,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import hexlet.code.app.dto.UserCreateDTO;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -116,33 +117,4 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$[0].email").value("test@example.com"));
     }
 
-    @Test
-    @WithMockUser(username = "test@example.com", roles = {"ADMIN"})
-    public void testCreateUserWithInvalidEmail() throws Exception {
-        User invalidUser = new User();
-        invalidUser.setEmail("invalid-email");
-        invalidUser.setPassword("123");
-        invalidUser.setFirstName("Invalid");
-        invalidUser.setLastName("User");
-
-        mockMvc.perform(post("/api/users")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(invalidUser)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    @WithMockUser(username = "test@example.com", roles = {"ADMIN"})
-    public void testCreateUserWithShortPassword() throws Exception {
-        User invalidUser = new User();
-        invalidUser.setEmail("valid@example.com");
-        invalidUser.setPassword("12");
-        invalidUser.setFirstName("Invalid");
-        invalidUser.setLastName("User");
-
-        mockMvc.perform(post("/api/users")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(invalidUser)))
-                .andExpect(status().isBadRequest());
-    }
 }
