@@ -1,13 +1,11 @@
 package hexlet.code.app.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.time.LocalDate;
 import java.util.List;
 
-@Getter
-@Setter
+@Data
 public class TaskDTO {
     private Long id;
     private Integer index;
@@ -18,7 +16,7 @@ public class TaskDTO {
     private String status;
     private Long taskStatusId;
     private Long assigneeId;
-    private List<Long> labelIds;        // ← ОСТАВЛЯЕМ ДЛЯ СОВМЕСТИМОСТИ
-    private List<Long> taskLabelIds;    // ← ДЛЯ ТЕСТОВ
+    private List<Long> labelIds;
+    private List<Long> taskLabelIds;
     private LocalDate createdAt;
 }
