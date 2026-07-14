@@ -41,6 +41,7 @@
 ```bash
 git clone git@github.com:bobbidenisleo-glitch/java-project-99.git
 cd java-project-99
+```
 
 2. Соберите проект:
 
@@ -63,6 +64,23 @@ http://localhost:8080/welcome
 ## Статус сборки
 
 [![Java CI](https://github.com/bobbidenisleo-glitch/java-project-99/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/bobbidenisleo-glitch/java-project-99/actions/workflows/hexlet-check.yml)
+
+## Тестовые данные для входа
+
+Для проверки работы приложения вы можете использовать следующие тестовые учётные записи.
+
+### Администратор
+
+- **Страница логина:** [https://java-project-99-p96b.onrender.com/api/login](https://java-project-99-p96b.onrender.com/api/login) (для API-запросов) или через интерфейс приложения.
+- **Имя пользователя (email):** `hexlet@example.com`
+- **Пароль:** `password123`
+
+### Обычный пользователь
+
+- **Имя пользователя (email):** `test@example.com`
+- **Пароль:** `password123`
+
+> **Примечание:** Если эти пользователи не существуют в базе данных, вы можете создать их через эндпоинт `POST /api/users` или зарегистрироваться через интерфейс приложения.
 
 ## Автор
 
