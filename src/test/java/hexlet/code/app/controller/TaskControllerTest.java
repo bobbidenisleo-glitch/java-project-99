@@ -16,6 +16,9 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -90,12 +93,12 @@ public class TaskControllerTest {
     @Test
     @WithMockUser(username = "test@example.com", roles = {"ADMIN"})
     public void testCreateTask() throws Exception {
-        Task newTask = new Task();
-        newTask.setName("New Task");
-        newTask.setDescription("New Description");
-        newTask.setIndex(2);
-        newTask.setTaskStatus(testStatus);
-        newTask.setAssignee(testUser);
+        Map<String, Object> newTask = new HashMap<>();
+        newTask.put("name", "New Task");
+        newTask.put("description", "New Description");
+        newTask.put("index", 2);
+        newTask.put("taskStatusId", testStatus.getId());
+        newTask.put("assigneeId", testUser.getId());
 
         mockMvc.perform(post("/api/tasks")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -109,8 +112,8 @@ public class TaskControllerTest {
     @Test
     @WithMockUser(username = "test@example.com", roles = {"ADMIN"})
     public void testUpdateTask() throws Exception {
-        Task updateData = new Task();
-        updateData.setName("Updated Task");
+        Map<String, Object> updateData = new HashMap<>();
+        updateData.put("name", "Updated Task");
 
         mockMvc.perform(put("/api/tasks/" + testTask.getId())
                 .contentType(MediaType.APPLICATION_JSON)
