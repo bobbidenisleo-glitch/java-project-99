@@ -1,0 +1,326 @@
+[1mdiff --git a/build.gradle b/build.gradle[m
+[1mindex 62d32df4..e6d9d8b0 100644[m
+[1m--- a/build.gradle[m
+[1m+++ b/build.gradle[m
+[36m@@ -46,6 +46,8 @@[m [mdependencies {[m
+     testImplementation 'org.springframework.security:spring-security-oauth2-jose'[m
+     testImplementation 'org.springframework.boot:spring-boot-starter-webflux'[m
+     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'[m
+[32m+[m[32m    implementation 'org.mapstruct:mapstruct:1.5.5.Final'[m
+[32m+[m[32m    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'[m
+ }[m
+ [m
+ tasks.named('test') {[m
+[1mdiff --git a/src/main/java/hexlet/code/app/config/SecurityConfig.java b/src/main/java/hexlet/code/app/config/SecurityConfig.java[m
+[1mindex 9fb7bbd2..f1c06130 100644[m
+[1m--- a/src/main/java/hexlet/code/app/config/SecurityConfig.java[m
+[1m+++ b/src/main/java/hexlet/code/app/config/SecurityConfig.java[m
+[36m@@ -8,6 +8,7 @@[m [mimport org.springframework.security.authentication.AuthenticationManager;[m
+ import org.springframework.security.authentication.AuthenticationProvider;[m
+ import org.springframework.security.authentication.dao.DaoAuthenticationProvider;[m
+ import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;[m
+[32m+[m[32mimport org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;[m
+ import org.springframework.security.config.annotation.web.builders.HttpSecurity;[m
+ import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;[m
+ import org.springframework.security.config.http.SessionCreationPolicy;[m
+[36m@@ -23,6 +24,7 @@[m [mimport org.springframework.web.cors.UrlBasedCorsConfigurationSource;[m
+ import java.util.List;[m
+ [m
+ @Configuration[m
+[32m+[m[32m@EnableMethodSecurity[m
+ @RequiredArgsConstructor[m
+ public class SecurityConfig {[m
+ [m
+[36m@@ -66,10 +68,8 @@[m [mpublic class SecurityConfig {[m
+         return http.build();[m
+     }[m
+ [m
+[31m-    // ⬇️ ИСПРАВЛЕННЫЙ МЕТОД ⬇️[m
+     @Bean[m
+     public AuthenticationProvider authenticationProvider() {[m
+[31m-        // В Spring Security 6.x конструктор принимает только UserDetailsService[m
+         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService);[m
+         authProvider.setPasswordEncoder(passwordEncoder());[m
+         return authProvider;[m
+[1mdiff --git a/src/main/java/hexlet/code/app/controller/UserController.java b/src/main/java/hexlet/code/app/controller/UserController.java[m
+[1mindex 8b95a7b4..c789f9d9 100644[m
+[1m--- a/src/main/java/hexlet/code/app/controller/UserController.java[m
+[1m+++ b/src/main/java/hexlet/code/app/controller/UserController.java[m
+[36m@@ -4,11 +4,13 @@[m [mimport hexlet.code.app.dto.UserCreateDTO;[m
+ import hexlet.code.app.dto.UserDTO;[m
+ import hexlet.code.app.model.User;[m
+ import hexlet.code.app.service.UserService;[m
+[32m+[m[32mimport hexlet.code.app.util.UserUtils;[m
+ import jakarta.validation.Valid;[m
+ import lombok.RequiredArgsConstructor;[m
+ import org.springframework.http.HttpHeaders;[m
+ import org.springframework.http.HttpStatus;[m
+ import org.springframework.http.ResponseEntity;[m
+[32m+[m[32mimport org.springframework.security.access.prepost.PreAuthorize;[m
+ import org.springframework.web.bind.annotation.DeleteMapping;[m
+ import org.springframework.web.bind.annotation.GetMapping;[m
+ import org.springframework.web.bind.annotation.PathVariable;[m
+[36m@@ -27,6 +29,7 @@[m [mimport java.util.List;[m
+ public class UserController {[m
+ [m
+     private final UserService userService;[m
+[32m+[m[32m    private final UserUtils userUtils;[m
+ [m
+     @GetMapping[m
+     public ResponseEntity<List<UserDTO>> getAllUsers() {[m
+[36m@@ -58,6 +61,7 @@[m [mpublic class UserController {[m
+     }[m
+ [m
+     @PutMapping("/{id}")[m
+[32m+[m[32m    @PreAuthorize("@userUtils.isAuthor(#id) or @userUtils.isAdmin()")[m
+     public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody UserCreateDTO userCreateDTO) {[m
+         User user = new User();[m
+         user.setFirstName(userCreateDTO.getFirstName());[m
+[36m@@ -70,6 +74,7 @@[m [mpublic class UserController {[m
+     }[m
+ [m
+     @DeleteMapping("/{id}")[m
+[32m+[m[32m    @PreAuthorize("@userUtils.isAuthor(#id) or @userUtils.isAdmin()")[m
+     @ResponseStatus(HttpStatus.NO_CONTENT)[m
+     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {[m
+         userService.deleteUser(id);[m
+[1mdiff --git a/src/main/java/hexlet/code/app/mapper/TaskMapper.java b/src/main/java/hexlet/code/app/mapper/TaskMapper.java[m
+[1mindex f4f0852e..45cac56a 100644[m
+[1m--- a/src/main/java/hexlet/code/app/mapper/TaskMapper.java[m
+[1m+++ b/src/main/java/hexlet/code/app/mapper/TaskMapper.java[m
+[36m@@ -2,129 +2,35 @@[m [mpackage hexlet.code.app.mapper;[m
+ [m
+ import hexlet.code.app.dto.TaskCreateDTO;[m
+ import hexlet.code.app.dto.TaskDTO;[m
+[31m-import hexlet.code.app.model.Label;[m
+ import hexlet.code.app.model.Task;[m
+[31m-import hexlet.code.app.model.TaskStatus;[m
+[31m-import hexlet.code.app.model.User;[m
+[31m-import hexlet.code.app.repository.LabelRepository;[m
+[31m-import hexlet.code.app.repository.TaskStatusRepository;[m
+[31m-import hexlet.code.app.repository.UserRepository;[m
+[31m-import lombok.RequiredArgsConstructor;[m
+[31m-import org.springframework.stereotype.Component;[m
+[31m-[m
+[31m-import java.util.ArrayList;[m
+[31m-import java.util.List;[m
+[31m-import java.util.stream.Collectors;[m
+[31m-[m
+[31m-@Component[m
+[31m-@RequiredArgsConstructor[m
+[31m-public class TaskMapper {[m
+[31m-[m
+[31m-    private final TaskStatusRepository taskStatusRepository;[m
+[31m-    private final UserRepository userRepository;[m
+[31m-    private final LabelRepository labelRepository;[m
+[31m-[m
+[31m-    public Task toEntity(TaskCreateDTO dto) {[m
+[31m-        Task task = new Task();[m
+[31m-[m
+[31m-        // Основные поля[m
+[31m-        task.setName(dto.getName());[m
+[31m-        task.setDescription(dto.getDescription());[m
+[31m-        task.setIndex(dto.getIndex());[m
+[31m-[m
+[31m-        // Совместимость с тестами: title -> name[m
+[31m-        if (dto.getTitle() != null) {[m
+[31m-            task.setName(dto.getTitle());[m
+[31m-        }[m
+[31m-[m
+[31m-        // Совместимость с тестами: content -> description[m
+[31m-        if (dto.getContent() != null) {[m
+[31m-            task.setDescription(dto.getContent());[m
+[31m-        }[m
+[31m-[m
+[31m-        // Устанавливаем статус[m
+[31m-        if (dto.getTaskStatusId() != null) {[m
+[31m-            TaskStatus status = taskStatusRepository.findById(dto.getTaskStatusId())[m
+[31m-                    .orElseThrow(() -> new RuntimeException("TaskStatus not found"));[m
+[31m-            task.setTaskStatus(status);[m
+[31m-        }[m
+[31m-[m
+[31m-        // Совместимость с тестами: status (слаг) -> TaskStatus[m
+[31m-        if (dto.getStatus() != null) {[m
+[31m-            TaskStatus status = taskStatusRepository.findBySlug(dto.getStatus())[m
+[31m-                    .orElseThrow(() -> new RuntimeException("Status not found: " + dto.getStatus()));[m
+[31m-            task.setTaskStatus(status);[m
+[31m-        }[m
+[31m-[m
+[31m-        // Совместимость с Entity: taskStatus[m
+[31m-        if (dto.getTaskStatus() != null) {[m
+[31m-            task.setTaskStatus(dto.getTaskStatus());[m
+[31m-        }[m
+[31m-[m
+[31m-        // Устанавливаем исполнителя[m
+[31m-        if (dto.getAssigneeId() != null) {[m
+[31m-            User assignee = userRepository.findById(dto.getAssigneeId())[m
+[31m-                    .orElseThrow(() -> new RuntimeException("User not found"));[m
+[31m-            task.setAssignee(assignee);[m
+[31m-        }[m
+[31m-[m
+[31m-        // Совместимость с Entity: assignee[m
+[31m-        if (dto.getAssignee() != null) {[m
+[31m-            task.setAssignee(dto.getAssignee());[m
+[31m-        }[m
+[31m-[m
+[31m-        // Устанавливаем метки[m
+[31m-        if (dto.getLabelIds() != null && !dto.getLabelIds().isEmpty()) {[m
+[31m-            List<Label> labels = labelRepository.findAllById(dto.getLabelIds());[m
+[31m-            task.setLabels(labels);[m
+[31m-        }[m
+[31m-[m
+[31m-        // Совместимость с тестами: taskLabelIds -> Label[m
+[31m-        if (dto.getTaskLabelIds() != null && !dto.getTaskLabelIds().isEmpty()) {[m
+[31m-            List<Label> labels = labelRepository.findAllById(dto.getTaskLabelIds());[m
+[31m-            task.setLabels(labels);[m
+[31m-        }[m
+[31m-[m
+[31m-        // Совместимость с тестами: labels -> Label[m
+[31m-        if (dto.getLabels() != null && !dto.getLabels().isEmpty()) {[m
+[31m-            List<Label> labels = labelRepository.findAllById(dto.getLabels());[m
+[31m-            task.setLabels(labels);[m
+[31m-        }[m
+[31m-[m
+[31m-        return task;[m
+[31m-    }[m
+[31m-[m
+[31m-    public TaskDTO toDTO(Task task) {[m
+[31m-        TaskDTO dto = new TaskDTO();[m
+[31m-        dto.setId(task.getId());[m
+[31m-        dto.setName(task.getName());[m
+[31m-        dto.setTitle(task.getName());[m
+[31m-        dto.setDescription(task.getDescription());[m
+[31m-        dto.setContent(task.getDescription());[m
+[31m-        dto.setIndex(task.getIndex());[m
+[31m-        dto.setCreatedAt(task.getCreatedAt());[m
+[31m-[m
+[31m-        dto.setStatus(task.getTaskStatus() != null ? task.getTaskStatus().getSlug() : null);[m
+[31m-[m
+[31m-        if (task.getTaskStatus() != null) {[m
+[31m-            dto.setTaskStatusId(task.getTaskStatus().getId());[m
+[31m-        }[m
+[31m-        if (task.getAssignee() != null) {[m
+[31m-            dto.setAssigneeId(task.getAssignee().getId());[m
+[31m-        }[m
+[31m-[m
+[31m-        // Метки[m
+[31m-        if (task.getLabels() != null && !task.getLabels().isEmpty()) {[m
+[31m-            List<Long> labelIds = task.getLabels().stream()[m
+[31m-                    .map(Label::getId)[m
+[31m-                    .collect(Collectors.toList());[m
+[31m-            dto.setLabelIds(labelIds);[m
+[31m-            dto.setTaskLabelIds(labelIds);[m
+[31m-        } else {[m
+[31m-            dto.setLabelIds(new ArrayList<>());[m
+[31m-            dto.setTaskLabelIds(new ArrayList<>());[m
+[31m-        }[m
+[31m-[m
+[31m-        return dto;[m
+[31m-    }[m
+[32m+[m[32mimport org.mapstruct.Mapper;[m
+[32m+[m[32mimport org.mapstruct.Mapping;[m
+[32m+[m[32mimport org.mapstruct.MappingTarget;[m
+[32m+[m
+[32m+[m[32m@Mapper(componentModel = "spring")[m
+[32m+[m[32mpublic interface TaskMapper {[m
+[32m+[m
+[32m+[m[32m    @Mapping(target = "id", ignore = true)[m
+[32m+[m[32m    @Mapping(target = "createdAt", ignore = true)[m
+[32m+[m[32m    @Mapping(target = "taskStatus", ignore = true)[m
+[32m+[m[32m    @Mapping(target = "assignee", ignore = true)[m
+[32m+[m[32m    @Mapping(target = "labels", ignore = true)[m
+[32m+[m[32m    Task toEntity(TaskCreateDTO dto);[m
+[32m+[m
+[32m+[m[32m    @Mapping(target = "title", ignore = true)[m
+[32m+[m[32m    @Mapping(target = "content", ignore = true)[m
+[32m+[m[32m    @Mapping(target = "status", ignore = true)[m
+[32m+[m[32m    @Mapping(target = "taskStatusId", ignore = true)[m
+[32m+[m[32m    @Mapping(target = "assigneeId", ignore = true)[m
+[32m+[m[32m    @Mapping(target = "labelIds", ignore = true)[m
+[32m+[m[32m    @Mapping(target = "taskLabelIds", ignore = true)[m
+[32m+[m[32m    TaskDTO toDTO(Task task);[m
+[32m+[m
+[32m+[m[32m    // Оставляем только простые поля, остальное — в сервисе[m
+[32m+[m[32m    @Mapping(target = "id", ignore = true)[m
+[32m+[m[32m    @Mapping(target = "createdAt", ignore = true)[m
+[32m+[m[32m    @Mapping(target = "taskStatus", ignore = true)[m
+[32m+[m[32m    @Mapping(target = "assignee", ignore = true)[m
+[32m+[m[32m    @Mapping(target = "labels", ignore = true)[m
+[32m+[m[32m    void updateEntity(TaskCreateDTO dto, @MappingTarget Task task);[m
+ }[m
+[1mdiff --git a/src/main/java/hexlet/code/app/model/Task.java b/src/main/java/hexlet/code/app/model/Task.java[m
+[1mindex a553b7ed..62d106b4 100644[m
+[1m--- a/src/main/java/hexlet/code/app/model/Task.java[m
+[1m+++ b/src/main/java/hexlet/code/app/model/Task.java[m
+[36m@@ -19,7 +19,7 @@[m [mimport org.springframework.data.annotation.CreatedDate;[m
+ import org.springframework.data.jpa.domain.support.AuditingEntityListener;[m
+ [m
+ import java.time.LocalDate;[m
+[31m-import java.util.List;[m
+[32m+[m[32mimport java.util.Set;[m
+ [m
+ @Entity[m
+ @Table(name = "tasks")[m
+[36m@@ -52,7 +52,7 @@[m [mpublic class Task {[m
+         joinColumns = @JoinColumn(name = "task_id"),[m
+         inverseJoinColumns = @JoinColumn(name = "label_id")[m
+     )[m
+[31m-    private List<Label> labels;[m
+[32m+[m[32m    private Set<Label> labels;[m
+ [m
+     @CreatedDate[m
+     @Column(updatable = false)[m
+[1mdiff --git a/src/main/java/hexlet/code/app/service/TaskMapperService.java b/src/main/java/hexlet/code/app/service/TaskMapperService.java[m
+[1mnew file mode 100644[m
+[1mindex 00000000..29e43cc3[m
+[1m--- /dev/null[m
+[1m+++ b/src/main/java/hexlet/code/app/service/TaskMapperService.java[m
+[36m@@ -0,0 +1,148 @@[m
+[32m+[m[32mpackage hexlet.code.app.service;[m
+[32m+[m
+[32m+[m[32mimport hexlet.code.app.dto.TaskCreateDTO;[m
+[32m+[m[32mimport hexlet.code.app.dto.TaskDTO;[m
+[32m+[m[32mimport hexlet.code.app.mapper.TaskMapper;[m
+[32m+[m[32mimport hexlet.code.app.model.Label;[m
+[32m+[m[32mimport hexlet.code.app.model.Task;[m
+[32m+[m[32mimport hexlet.code.app.model.TaskStatus;[m
+[32m+[m[32mimport hexlet.code.app.model.User;[m
+[32m+[m[32mimport hexlet.code.app.repository.LabelRepository;[m
+[32m+[m[32mimport hexlet.code.app.repository.TaskStatusRepository;[m
+[32m+[m[32mimport hexlet.code.app.repository.UserRepository;[m
+[32m+[m[32mimport lombok.RequiredArgsConstructor;[m
+[32m+[m[32mimport org.springframework.stereotype.Service;[m
+[32m+[m
+[32m+[m[32mimport java.util.HashSet;[m
+[32m+[m[32mimport java.util.List;[m
+[32m+[m[32mimport java.util.Set;[m
+[32m+[m
+[32m+[m[32m@Service[m
+[32m+[m[32m@RequiredArgsConstructor[m
+[32m+[m[32mpublic class TaskMapperService {[m
+[32m+[m
+[32m+[m[32m    private final TaskMapper taskMapper;[m
+[32m+[m[32m    private final TaskStatusRepository taskStatusRepository;[m
+[32m+[m[32m    private final UserRepository userRepository;[m
+[32m+[m[32m    private final LabelRepository labelRepository;[m
+[32m+[m
+[32m+[m[32m    public Task toEntity(TaskCreateDTO dto) {[m
+[32m+[m[32m        Task task = taskMapper.toEntity(dto);[m
+[32m+[m
+[32m+[m[32m        if (dto.getTaskStatusId() != null) {[m
+[32m+[m[32m            TaskStatus status = taskStatusRepository.findById(dto.getTaskStatusId())[m
+[32m+[m[32m                    .orElseThrow(() -> new RuntimeException("TaskStatus not found"));[m
+[32m+[m[32m            task.setTaskStatus(status);[m
+[32m+[m[32m        }[m
+[32m+[m[32m        if (dto.getStatus() != null && !dto.getStatus().isEmpty()) {[m
+[32m+[m[32m            TaskStatus status = taskStatusRepository.findBySlug(dto.getStatus())[m
+[32m+[m[32m                    .orElseThrow(() -> new RuntimeException("Status not found: " + dto.getStatus()));[m
+[32m+[m[32m            task.setTaskStatus(status);[m
+[32m+[m[32m        }[m
+[32m+[m[32m        if (dto.getTaskStatus() != null) {[m
+[32m+[m[32m            task.setTaskStatus(dto.getTaskStatus());[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m        if (dto.getAssigneeId() != null) {[m
+[32m+[m[32m            User assignee = userRepository.findById(dto.getAssigneeId())[m
+[32m+[m[32m                    .orElseThrow((
