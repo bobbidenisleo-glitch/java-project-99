@@ -2,6 +2,7 @@ package hexlet.code.app.service;
 
 import hexlet.code.app.dto.TaskCreateDTO;
 import hexlet.code.app.dto.TaskDTO;
+import hexlet.code.app.mapper.TaskMapper;
 import hexlet.code.app.model.Task;
 import hexlet.code.app.model.TaskStatus;
 import hexlet.code.app.model.User;
@@ -14,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,6 +26,7 @@ public class TaskServiceImpl implements TaskService {
     private final TaskStatusRepository taskStatusRepository;
     private final UserRepository userRepository;
     private final LabelRepository labelRepository;
+    private final TaskMapper taskMapper;
 
     @Override
     public List<TaskDTO> getAllTasks(String titleCont, Long assigneeId, String status, Long labelId) {
@@ -57,7 +58,7 @@ public class TaskServiceImpl implements TaskService {
         }
 
         return taskRepository.findAll(spec).stream()
-                .map(this::toDTO)
+                .map(taskMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
@@ -65,58 +66,14 @@ public class TaskServiceImpl implements TaskService {
     public TaskDTO getTaskById(Long id) {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
-        return toDTO(task);
+        return taskMapper.toDTO(task);
     }
 
     @Override
     public TaskDTO createTask(TaskCreateDTO dto) {
-        Task task = new Task();
-        
-        // Обработка name / title
-        String name = dto.getName();
-        if (name == null || name.isEmpty()) {
-            name = dto.getTitle();
-        }
-        task.setName(name);
-        
-        // Обработка description / content
-        String description = dto.getDescription();
-        if (description == null || description.isEmpty()) {
-            description = dto.getContent();
-        }
-        task.setDescription(description);
-        
-        task.setIndex(dto.getIndex());
-        
-        // Установка статуса по ID
-        if (dto.getTaskStatusId() != null) {
-            TaskStatus status = taskStatusRepository.findById(dto.getTaskStatusId())
-                    .orElseThrow(() -> new RuntimeException("TaskStatus not found"));
-            task.setTaskStatus(status);
-        }
-        
-        // Установка статуса по слагу (для тестов Hexlet)
-        if (dto.getStatus() != null && !dto.getStatus().isEmpty()) {
-            TaskStatus status = taskStatusRepository.findBySlug(dto.getStatus())
-                    .orElseThrow(() -> new RuntimeException("Status not found: " + dto.getStatus()));
-            task.setTaskStatus(status);
-        }
-        
-        // Установка исполнителя по ID
-        if (dto.getAssigneeId() != null) {
-            User assignee = userRepository.findById(dto.getAssigneeId())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-            task.setAssignee(assignee);
-        }
-        
-        // Установка меток
-        if (dto.getLabelIds() != null && !dto.getLabelIds().isEmpty()) {
-            List<Label> labels = labelRepository.findAllById(dto.getLabelIds());
-            task.setLabels(labels);
-        }
-        
+        Task task = taskMapper.toEntity(dto);
         Task saved = taskRepository.save(task);
-        return toDTO(saved);
+        return taskMapper.toDTO(saved);
     }
 
     @Override
@@ -166,7 +123,7 @@ public class TaskServiceImpl implements TaskService {
         }
         
         Task saved = taskRepository.save(existing);
-        return toDTO(saved);
+        return taskMapper.toDTO(saved);
     }
 
     @Override
@@ -175,37 +132,5 @@ public class TaskServiceImpl implements TaskService {
             throw new RuntimeException("Task not found");
         }
         taskRepository.deleteById(id);
-    }
-
-    private TaskDTO toDTO(Task task) {
-        TaskDTO dto = new TaskDTO();
-        dto.setId(task.getId());
-        dto.setName(task.getName());
-        dto.setTitle(task.getName());
-        dto.setDescription(task.getDescription());
-        dto.setContent(task.getDescription());
-        dto.setIndex(task.getIndex());
-        dto.setCreatedAt(task.getCreatedAt());
-        
-        if (task.getTaskStatus() != null) {
-            dto.setTaskStatusId(task.getTaskStatus().getId());
-            dto.setStatus(task.getTaskStatus().getSlug());
-        }
-        if (task.getAssignee() != null) {
-            dto.setAssigneeId(task.getAssignee().getId());
-        }
-        
-        // Всегда устанавливаем списки меток (пустые, если нет)
-        if (task.getLabels() != null && !task.getLabels().isEmpty()) {
-            List<Long> labelIds = task.getLabels().stream()
-                    .map(Label::getId)
-                    .collect(Collectors.toList());
-            dto.setLabelIds(labelIds);
-            dto.setTaskLabelIds(labelIds);
-        } else {
-            dto.setLabelIds(new ArrayList<>());
-            dto.setTaskLabelIds(new ArrayList<>());
-        }
-        return dto;
     }
 }
