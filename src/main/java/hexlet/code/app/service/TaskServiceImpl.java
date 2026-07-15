@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -193,11 +194,17 @@ public class TaskServiceImpl implements TaskService {
         if (task.getAssignee() != null) {
             dto.setAssigneeId(task.getAssignee().getId());
         }
-        if (task.getLabels() != null) {
-            dto.setLabelIds(task.getLabels().stream()
+        
+        // Всегда устанавливаем списки меток (пустые, если нет)
+        if (task.getLabels() != null && !task.getLabels().isEmpty()) {
+            List<Long> labelIds = task.getLabels().stream()
                     .map(Label::getId)
-                    .collect(Collectors.toList()));
-            dto.setTaskLabelIds(dto.getLabelIds());
+                    .collect(Collectors.toList());
+            dto.setLabelIds(labelIds);
+            dto.setTaskLabelIds(labelIds);
+        } else {
+            dto.setLabelIds(new ArrayList<>());
+            dto.setTaskLabelIds(new ArrayList<>());
         }
         return dto;
     }
