@@ -17,6 +17,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import java.util.HashSet;
+import java.util.Set;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -52,7 +54,7 @@ public class Task {
         joinColumns = @JoinColumn(name = "task_id"),
         inverseJoinColumns = @JoinColumn(name = "label_id")
     )
-    private List<Label> labels;
+    private Set<Label> labels = new HashSet<>();
 
     @CreatedDate
     @Column(updatable = false)

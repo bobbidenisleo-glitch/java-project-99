@@ -11,6 +11,8 @@ import hexlet.code.app.repository.TaskStatusRepository;
 import hexlet.code.app.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import java.util.HashSet;
+import java.util.Set;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,20 +77,20 @@ public class TaskMapper {
 
         // Устанавливаем метки
         if (dto.getLabelIds() != null && !dto.getLabelIds().isEmpty()) {
-            List<Label> labels = labelRepository.findAllById(dto.getLabelIds());
-            task.setLabels(labels);
+            Set<Label> labels = new HashSet<>(labelRepository.findAllById(dto.getLabelIds()));
+        task.setLabels(labels);
         }
 
         // Совместимость с тестами: taskLabelIds -> Label
         if (dto.getTaskLabelIds() != null && !dto.getTaskLabelIds().isEmpty()) {
-            List<Label> labels = labelRepository.findAllById(dto.getTaskLabelIds());
-            task.setLabels(labels);
+            Set<Label> labels = new HashSet<>(labelRepository.findAllById(dto.getTaskLabelIds()));
+        task.setLabels(labels);
         }
 
         // Совместимость с тестами: labels -> Label
         if (dto.getLabels() != null && !dto.getLabels().isEmpty()) {
-            List<Label> labels = labelRepository.findAllById(dto.getLabels());
-            task.setLabels(labels);
+            Set<Label> labels = new HashSet<>(labelRepository.findAllById(dto.getLabels()));
+        task.setLabels(labels);
         }
 
         return task;

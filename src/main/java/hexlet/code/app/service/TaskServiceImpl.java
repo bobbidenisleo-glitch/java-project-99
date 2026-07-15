@@ -14,6 +14,8 @@ import hexlet.code.app.repository.LabelRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import java.util.HashSet;
+import java.util.Set;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -118,8 +120,8 @@ public class TaskServiceImpl implements TaskService {
             existing.setAssignee(dto.getAssignee());
         }
         if (dto.getLabelIds() != null && !dto.getLabelIds().isEmpty()) {
-            List<Label> labels = labelRepository.findAllById(dto.getLabelIds());
-            existing.setLabels(labels);
+            Set<Label> labels = new HashSet<>(labelRepository.findAllById(dto.getLabelIds()));
+        existing.setLabels(labels);
         }
         
         Task saved = taskRepository.save(existing);
