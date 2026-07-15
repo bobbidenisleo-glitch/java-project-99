@@ -176,17 +176,19 @@ class TaskServiceTest {
 
     @Test
     void testUpdateTaskStatusBySlug() {
-        TaskStatus newStatus = new TaskStatus();
-        newStatus.setName("Done");
-        newStatus.setSlug("done");
-        taskStatusRepository.save(newStatus);
+    TaskStatus newStatus = new TaskStatus();
+    newStatus.setName("Done");
+    newStatus.setSlug("done");
+    taskStatusRepository.save(newStatus);
 
-        TaskCreateDTO dto = new TaskCreateDTO();
-        dto.setStatus("done");
+    TaskCreateDTO dto = new TaskCreateDTO();
+    dto.setStatus("done");
+    dto.setName(testTask.getName());
+    dto.setDescription(testTask.getDescription());
 
-        TaskDTO updated = taskService.updateTask(testTask.getId(), dto);
+    TaskDTO updated = taskService.updateTask(testTask.getId(), dto);
 
-        assertThat(updated.getStatus()).isEqualTo("done");
+    assertThat(updated.getStatus()).isEqualTo("done");
     }
 
     @Test
@@ -260,12 +262,14 @@ class TaskServiceTest {
 
     @Test
     void testUpdateTaskStatusBySlugNotFound() {
-        TaskCreateDTO dto = new TaskCreateDTO();
-        dto.setStatus("invalid_slug");
+    TaskCreateDTO dto = new TaskCreateDTO();
+    dto.setStatus("invalid_slug");
+    dto.setName(testTask.getName());
+    dto.setDescription(testTask.getDescription());
 
-        assertThatThrownBy(() -> taskService.updateTask(testTask.getId(), dto))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("Status not found");
+    assertThatThrownBy(() -> taskService.updateTask(testTask.getId(), dto))
+            .isInstanceOf(RuntimeException.class)
+            .hasMessageContaining("Status not found");
     }
 
     @Test

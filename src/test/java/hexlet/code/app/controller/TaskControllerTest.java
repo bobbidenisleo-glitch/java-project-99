@@ -112,15 +112,18 @@ public class TaskControllerTest {
     @Test
     @WithMockUser(username = "test@example.com", roles = {"ADMIN"})
     public void testUpdateTask() throws Exception {
-        Map<String, Object> updateData = new HashMap<>();
-        updateData.put("name", "Updated Task");
+    Map<String, Object> updateData = new HashMap<>();
+    updateData.put("name", "Updated Task");
+    updateData.put("description", "Updated Description");
+    updateData.put("taskStatusId", testStatus.getId());
+    updateData.put("assigneeId", testUser.getId());
 
-        mockMvc.perform(put("/api/tasks/" + testTask.getId())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updateData)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Updated Task"))
-                .andExpect(jsonPath("$.description").value("Test Description"));
+    mockMvc.perform(put("/api/tasks/" + testTask.getId())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(updateData)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.name").value("Updated Task"))
+            .andExpect(jsonPath("$.description").value("Updated Description"));
     }
 
     @Test
