@@ -4,11 +4,13 @@ import hexlet.code.app.dto.UserCreateDTO;
 import hexlet.code.app.dto.UserDTO;
 import hexlet.code.app.model.User;
 import hexlet.code.app.service.UserService;
+import hexlet.code.app.util.UserUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,6 +29,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final UserUtils userUtils;
 
     @GetMapping
     public ResponseEntity<List<UserDTO>> getAllUsers() {
@@ -58,6 +61,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("@userUtils.isAuthor(#id) or @userUtils.isAdmin()")
     public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody UserCreateDTO userCreateDTO) {
         User user = new User();
         user.setFirstName(userCreateDTO.getFirstName());
@@ -70,6 +74,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("@userUtils.isAuthor(#id) or @userUtils.isAdmin()")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
