@@ -5,7 +5,6 @@ import hexlet.code.app.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -16,16 +15,17 @@ public class UserUtils {
 
     public User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
         if (authentication == null || !authentication.isAuthenticated()) {
             return null;
         }
-        
-        Object principal = authentication.getPrincipal();
-        if (principal instanceof UserDetails userDetails) {
-            String email = userDetails.getUsername();
-            return userRepository.findByEmail(email).orElse(null);
+
+        String email = authentication.getName();
+        if (email == null || email.isEmpty()) {
+            return null;
         }
-        return null;
+
+        return userRepository.findByEmail(email).orElse(null);
     }
 
     public boolean isAuthor(Long userId) {
