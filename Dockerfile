@@ -2,17 +2,21 @@ FROM eclipse-temurin:21-jdk AS builder
 
 WORKDIR /app
 
-# Копируем только необходимые файлы для сборки
-COPY gradlew gradlew
-COPY gradle gradle
-COPY build.gradle settings.gradle ./
-RUN chmod +x gradlew
+# Устанавливаем Node.js и npm
+RUN apt-get update && apt-get install -y nodejs npm
 
-# Скачиваем зависимости (кэшируем этот слой)
-RUN ./gradlew dependencies --no-daemon || return 0
+# Копируем package.json и устанавливаем зависимости
+COPY package*.json ./
+RUN npm install
 
-# Копируем исходный код и собираем JAR
-COPY src src
+# Копируем остальной код
+COPY . .
+
+# Копируем готовый фронтенд из пакета Hexlet (ДО сборки Gradle)
+RUN mkdir -p src/main/resources/static
+RUN cp -r node_modules/@hexlet/java-task-manager-frontend/dist/* src/main/resources/static/
+
+# Собираем JAR
 RUN ./gradlew build -x test --no-daemon
 
 # Второй этап: создаем легкий образ для запуска
@@ -25,5 +29,5 @@ COPY --from=builder /app/build/libs/*.jar app.jar
 
 EXPOSE 8080
 
-# Запускаем JAR с ограничением памяти
+# Запускаем JAR
 CMD ["java", "-Xmx256m", "-jar", "app.jar"]

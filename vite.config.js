@@ -1,7 +1,18 @@
 import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
 export default defineConfig({
-  root: 'src/main/resources/static/frontend',
+  plugins: [react()],
+  root: '.',
+  build: {
+    outDir: 'src/main/resources/static',
+    emptyOutDir: true,
+    rollupOptions: {
+      input: {
+        main: './index.html',
+      },
+    },
+  },
   server: {
     proxy: {
       '/api': 'http://localhost:8080'
