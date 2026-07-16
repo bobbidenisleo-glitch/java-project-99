@@ -2,7 +2,6 @@ package hexlet.code.app.controller;
 
 import hexlet.code.app.dto.LabelCreateDTO;
 import hexlet.code.app.dto.LabelDTO;
-import hexlet.code.app.model.Label;
 import hexlet.code.app.service.LabelService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -47,19 +46,13 @@ public class LabelController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<LabelDTO> createLabel(@Valid @RequestBody LabelCreateDTO labelCreateDTO) {
-        Label label = new Label();
-        label.setName(labelCreateDTO.getName());
-        
-        LabelDTO created = labelService.createLabel(label);
+        LabelDTO created = labelService.createLabel(labelCreateDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<LabelDTO> updateLabel(@PathVariable Long id, @RequestBody LabelCreateDTO labelCreateDTO) {
-        Label label = new Label();
-        label.setName(labelCreateDTO.getName());
-        
-        LabelDTO updated = labelService.updateLabel(id, label);
+        LabelDTO updated = labelService.updateLabel(id, labelCreateDTO);
         return ResponseEntity.ok(updated);
     }
 

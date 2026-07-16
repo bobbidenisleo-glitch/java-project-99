@@ -1,11 +1,13 @@
 package hexlet.code.app.service;
 
+import hexlet.code.app.dto.LabelCreateDTO;
 import hexlet.code.app.dto.LabelDTO;
 import hexlet.code.app.model.Label;
 import hexlet.code.app.repository.LabelRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,7 +32,10 @@ public class LabelServiceImpl implements LabelService {
     }
 
     @Override
-    public LabelDTO createLabel(Label label) {
+    public LabelDTO createLabel(LabelCreateDTO dto) {
+        Label label = new Label();
+        label.setName(dto.getName());
+        
         if (labelRepository.findByName(label.getName()).isPresent()) {
             throw new RuntimeException("Label with this name already exists");
         }
@@ -39,16 +44,16 @@ public class LabelServiceImpl implements LabelService {
     }
 
     @Override
-    public LabelDTO updateLabel(Long id, Label updatedLabel) {
+    public LabelDTO updateLabel(Long id, LabelCreateDTO dto) {
         Label existing = labelRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Label not found"));
 
-        if (updatedLabel.getName() != null) {
-            if (labelRepository.findByName(updatedLabel.getName()).isPresent() &&
-                !existing.getName().equals(updatedLabel.getName())) {
+        if (dto.getName() != null) {
+            if (labelRepository.findByName(dto.getName()).isPresent() &&
+                !existing.getName().equals(dto.getName())) {
                 throw new RuntimeException("Label with this name already exists");
             }
-            existing.setName(updatedLabel.getName());
+            existing.setName(dto.getName());
         }
 
         Label saved = labelRepository.save(existing);
