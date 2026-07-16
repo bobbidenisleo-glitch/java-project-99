@@ -71,9 +71,10 @@ http://localhost:8080/welcome
 
 ### Администратор
 
-- **Страница логина:** [https://java-project-99-p96b.onrender.com/api/login](https://java-project-99-p96b.onrender.com/api/login) (для API-запросов) или через интерфейс приложения.
+- **Сайт (для входа в систему):** https://java-project-99-p96b.onrender.com
 - **Имя пользователя (email):** `hexlet@example.com`
-- **Пароль:** `password123`
+- **Пароль:** `qwerty`
+- **API-эндпоинт для получения токена:** `POST /api/login` (для разработчиков)
 
 ### Обычный пользователь
 
