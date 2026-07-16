@@ -16,12 +16,6 @@ plugins {
 group = 'hexlet.code'
 version = '0.0.1-SNAPSHOT'
 
-// java {
-//     toolchain {
-//         languageVersion = JavaLanguageVersion.of(21)
-//     }
-// }
-
 repositories {
     mavenCentral()
 }
@@ -40,13 +34,13 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
     implementation 'io.sentry:sentry-spring-boot-starter-jakarta:8.47.0'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5'
+    implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'org.springframework.security:spring-security-oauth2-jose'
     testImplementation 'org.springframework.boot:spring-boot-starter-webflux'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    implementation 'org.mapstruct:mapstruct:1.5.5.Final'
-    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
 }
 
 tasks.named('test') {
@@ -93,4 +87,22 @@ sentry {
     org = "java-project-99-42"
     projectName = "java"
     authToken = System.getenv("SENTRY_AUTH_TOKEN")
+}
+
+// ========== СБОРКА ФРОНТЕНДА ==========
+task installFrontend(type: Exec) {
+    workingDir = projectDir
+    commandLine 'npm', 'install'
+}
+
+task buildFrontend(type: Exec) {
+    workingDir = projectDir
+    commandLine 'npm', 'run', 'build'
+}
+
+buildFrontend.dependsOn installFrontend
+processResources.dependsOn buildFrontend
+
+clean {
+    delete 'src/main/resources/static'
 }
