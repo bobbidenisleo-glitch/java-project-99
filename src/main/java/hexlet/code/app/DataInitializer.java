@@ -7,12 +7,14 @@ import hexlet.code.app.repository.LabelRepository;
 import hexlet.code.app.repository.TaskStatusRepository;
 import hexlet.code.app.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class DataInitializer implements CommandLineRunner {
@@ -32,7 +34,7 @@ public class DataInitializer implements CommandLineRunner {
             admin.setFirstName("Admin");
             admin.setLastName("Hexlet");
             userRepository.save(admin);
-            System.out.println("Admin user created: hexlet@example.com / qwerty");
+            log.info("Admin user created: hexlet@example.com / qwerty");
         }
 
         // Создаём дефолтные статусы
@@ -52,7 +54,7 @@ public class DataInitializer implements CommandLineRunner {
                 status.setName(name);
                 status.setSlug(slug);
                 taskStatusRepository.save(status);
-                System.out.println("Default status created: " + name + " (" + slug + ")");
+                log.info("Default status created: {} ({})", name, slug);
             }
         }
 
@@ -64,7 +66,7 @@ public class DataInitializer implements CommandLineRunner {
                 Label label = new Label();
                 label.setName(labelName);
                 labelRepository.save(label);
-                System.out.println("Default label created: " + labelName);
+                log.info("Default label created: {}", labelName);
             }
         }
     }
