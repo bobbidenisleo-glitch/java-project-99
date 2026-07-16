@@ -1,7 +1,7 @@
 package hexlet.code.app.service;
 
+import hexlet.code.app.dto.LabelCreateDTO;
 import hexlet.code.app.dto.LabelDTO;
-import hexlet.code.app.model.Label;
 
 import java.util.List;
 
@@ -11,9 +11,9 @@ public interface LabelService {
 
     LabelDTO getLabelById(Long id);
 
-    LabelDTO createLabel(Label label);
+    LabelDTO createLabel(LabelCreateDTO dto);
 
-    LabelDTO updateLabel(Long id, Label updatedLabel);
+    LabelDTO updateLabel(Long id, LabelCreateDTO dto);
 
     void deleteLabel(Long id);
 }
