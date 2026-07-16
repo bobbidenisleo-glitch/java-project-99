@@ -18,3 +18,7 @@ springdoc:
     tagsSorter: alpha
     tryItOutEnabled: true
     filter: true
+sentry:
+  dsn: ${SENTRY_DSN:}
+  send-default-pii: true
+  debug: true
