@@ -8,7 +8,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
@@ -20,21 +20,23 @@ import java.time.LocalDate;
 @Table(name = "task_statuses")
 @Getter
 @Setter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @EntityListeners(AuditingEntityListener.class)
 public class TaskStatus {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @NotBlank
-    @Size(min = 1)
     @Column(unique = true)
+    @EqualsAndHashCode.Include
     private String name;
 
     @NotBlank
-    @Size(min = 1)
     @Column(unique = true)
+    @EqualsAndHashCode.Include
     private String slug;
 
     @CreatedDate
