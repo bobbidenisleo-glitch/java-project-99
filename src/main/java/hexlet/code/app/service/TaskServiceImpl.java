@@ -2,8 +2,10 @@ package hexlet.code.app.service;
 
 import hexlet.code.app.dto.TaskCreateDTO;
 import hexlet.code.app.dto.TaskDTO;
+import hexlet.code.app.mapper.TaskMapper;
 import hexlet.code.app.model.Task;
 import hexlet.code.app.repository.TaskRepository;
+import hexlet.code.app.specification.TaskSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -16,37 +18,13 @@ import java.util.stream.Collectors;
 public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
+    private final TaskMapper taskMapper;
+    private final TaskSpecification taskSpecification;
     private final TaskMapperService taskMapperService;
 
     @Override
     public List<TaskDTO> getAllTasks(String titleCont, Long assigneeId, String status, Long labelId) {
-        Specification<Task> spec = (root, query, cb) -> cb.conjunction();
-
-        if (titleCont != null && !titleCont.isEmpty()) {
-            spec = spec.and((root, query, cb) ->
-                cb.like(cb.lower(root.get("name")), "%" + titleCont.toLowerCase() + "%")
-            );
-        }
-
-        if (assigneeId != null) {
-            spec = spec.and((root, query, cb) ->
-                cb.equal(root.get("assignee").get("id"), assigneeId)
-            );
-        }
-
-        if (status != null && !status.isEmpty()) {
-            spec = spec.and((root, query, cb) ->
-                cb.equal(root.get("taskStatus").get("slug"), status)
-            );
-        }
-
-        if (labelId != null) {
-            spec = spec.and((root, query, cb) -> {
-                var labelsJoin = root.join("labels");
-                return cb.equal(labelsJoin.get("id"), labelId);
-            });
-        }
-
+        Specification<Task> spec = taskSpecification.build(titleCont, assigneeId, status, labelId);
         return taskRepository.findAll(spec).stream()
                 .map(taskMapperService::toDTO)
                 .collect(Collectors.toList());
@@ -61,7 +39,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskDTO createTask(TaskCreateDTO dto) {
-        Task task = taskMapperService.toEntity(dto);
+        Task task = taskMapper.toEntity(dto);
         Task saved = taskRepository.save(task);
         return taskMapperService.toDTO(saved);
     }
