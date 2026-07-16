@@ -89,20 +89,3 @@ sentry {
     authToken = System.getenv("SENTRY_AUTH_TOKEN")
 }
 
-// ========== СБОРКА ФРОНТЕНДА ==========
-task installFrontend(type: Exec) {
-    workingDir = projectDir
-    commandLine 'npm', 'install'
-}
-
-task buildFrontend(type: Exec) {
-    workingDir = projectDir
-    commandLine 'npm', 'run', 'build'
-}
-
-buildFrontend.dependsOn installFrontend
-processResources.dependsOn buildFrontend
-
-clean {
-    delete 'src/main/resources/static'
-}
