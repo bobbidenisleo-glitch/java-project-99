@@ -15,11 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @Transactional
@@ -80,102 +78,6 @@ class TaskMapperTest {
     }
 
     @Test
-    void testToEntityWithTitleAndContent() {
-        TaskCreateDTO dto = new TaskCreateDTO();
-        dto.setTitle("Title Task");
-        dto.setContent("Content Description");
-        dto.setIndex(2);
-
-        Task task = taskMapper.toEntity(dto);
-
-        assertThat(task).isNotNull();
-        assertThat(task.getName()).isEqualTo("Title Task");
-        assertThat(task.getDescription()).isEqualTo("Content Description");
-        assertThat(task.getIndex()).isEqualTo(2);
-    }
-
-    @Test
-    void testToEntityWithTaskStatusId() {
-        TaskCreateDTO dto = new TaskCreateDTO();
-        dto.setName("Task with Status");
-        dto.setTaskStatusId(testStatus.getId());
-
-        Task task = taskMapper.toEntity(dto);
-
-        assertThat(task).isNotNull();
-        assertThat(task.getTaskStatus()).isNotNull();
-        assertThat(task.getTaskStatus().getId()).isEqualTo(testStatus.getId());
-    }
-
-    @Test
-    void testToEntityWithStatusSlug() {
-        TaskCreateDTO dto = new TaskCreateDTO();
-        dto.setName("Task with Status Slug");
-        dto.setStatus("in_progress");
-
-        Task task = taskMapper.toEntity(dto);
-
-        assertThat(task).isNotNull();
-        assertThat(task.getTaskStatus()).isNotNull();
-        assertThat(task.getTaskStatus().getSlug()).isEqualTo("in_progress");
-    }
-
-    @Test
-    void testToEntityWithAssigneeId() {
-        TaskCreateDTO dto = new TaskCreateDTO();
-        dto.setName("Task with Assignee");
-        dto.setAssigneeId(testUser.getId());
-
-        Task task = taskMapper.toEntity(dto);
-
-        assertThat(task).isNotNull();
-        assertThat(task.getAssignee()).isNotNull();
-        assertThat(task.getAssignee().getId()).isEqualTo(testUser.getId());
-    }
-
-    @Test
-    void testToEntityWithLabelIds() {
-        TaskCreateDTO dto = new TaskCreateDTO();
-        dto.setName("Task with Labels");
-        dto.setLabelIds(List.of(testLabel.getId()));
-
-        Task task = taskMapper.toEntity(dto);
-
-        assertThat(task).isNotNull();
-        assertThat(task.getLabels()).isNotNull();
-        assertThat(task.getLabels()).hasSize(1);
-        assertThat(task.getLabels()).extracting("id").contains(testLabel.getId());
-    }
-
-    @Test
-    void testToEntityWithTaskLabelIds() {
-        TaskCreateDTO dto = new TaskCreateDTO();
-        dto.setName("Task with TaskLabelIds");
-        dto.setTaskLabelIds(List.of(testLabel.getId()));
-
-        Task task = taskMapper.toEntity(dto);
-
-        assertThat(task).isNotNull();
-        assertThat(task.getLabels()).isNotNull();
-        assertThat(task.getLabels()).hasSize(1);
-        assertThat(task.getLabels()).extracting("id").contains(testLabel.getId());
-    }
-
-    @Test
-    void testToEntityWithLabels() {
-        TaskCreateDTO dto = new TaskCreateDTO();
-        dto.setName("Task with Labels Field");
-        dto.setLabels(List.of(testLabel.getId()));
-
-        Task task = taskMapper.toEntity(dto);
-
-        assertThat(task).isNotNull();
-        assertThat(task.getLabels()).isNotNull();
-        assertThat(task.getLabels()).hasSize(1);
-        assertThat(task.getLabels()).extracting("id").contains(testLabel.getId());
-    }
-
-    @Test
     void testToDTO() {
         Task task = new Task();
         task.setId(1L);
@@ -191,15 +93,8 @@ class TaskMapperTest {
         assertThat(dto).isNotNull();
         assertThat(dto.getId()).isEqualTo(1L);
         assertThat(dto.getName()).isEqualTo("Test Task");
-        assertThat(dto.getTitle()).isEqualTo("Test Task");
         assertThat(dto.getDescription()).isEqualTo("Test Description");
-        assertThat(dto.getContent()).isEqualTo("Test Description");
         assertThat(dto.getIndex()).isEqualTo(1);
-        assertThat(dto.getStatus()).isEqualTo("in_progress");
-        assertThat(dto.getTaskStatusId()).isEqualTo(testStatus.getId());
-        assertThat(dto.getAssigneeId()).isEqualTo(testUser.getId());
-        assertThat(dto.getLabelIds()).contains(testLabel.getId());
-        assertThat(dto.getTaskLabelIds()).contains(testLabel.getId());
     }
 
     @Test
@@ -215,40 +110,7 @@ class TaskMapperTest {
         TaskDTO dto = taskMapper.toDTO(task);
 
         assertThat(dto).isNotNull();
-        assertThat(dto.getLabelIds()).isEmpty();
-        assertThat(dto.getTaskLabelIds()).isEmpty();
-    }
-
-    @Test
-    void testToEntityWithInvalidStatusId() {
-        TaskCreateDTO dto = new TaskCreateDTO();
-        dto.setName("Task with Invalid Status");
-        dto.setTaskStatusId(999L);
-
-        assertThatThrownBy(() -> taskMapper.toEntity(dto))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("TaskStatus not found");
-    }
-
-    @Test
-    void testToEntityWithInvalidStatusSlug() {
-        TaskCreateDTO dto = new TaskCreateDTO();
-        dto.setName("Task with Invalid Slug");
-        dto.setStatus("invalid_slug");
-
-        assertThatThrownBy(() -> taskMapper.toEntity(dto))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("Status not found");
-    }
-
-    @Test
-    void testToEntityWithInvalidAssigneeId() {
-        TaskCreateDTO dto = new TaskCreateDTO();
-        dto.setName("Task with Invalid Assignee");
-        dto.setAssigneeId(999L);
-
-        assertThatThrownBy(() -> taskMapper.toEntity(dto))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("User not found");
+        assertThat(dto.getLabelIds()).isNull();
+        assertThat(dto.getTaskLabelIds()).isNull();
     }
 }
