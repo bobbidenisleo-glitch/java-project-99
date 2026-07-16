@@ -112,6 +112,7 @@ public class TaskMapperService {
     }
 
     public void updateEntity(TaskCreateDTO dto, Task task) {
+        // Обновление name / title
         if (dto.getTitle() != null) {
             task.setName(dto.getTitle());
         }
@@ -119,6 +120,7 @@ public class TaskMapperService {
             task.setName(dto.getName());
         }
         
+        // Обновление description / content
         if (dto.getContent() != null) {
             task.setDescription(dto.getContent());
         }
@@ -126,12 +128,12 @@ public class TaskMapperService {
             task.setDescription(dto.getDescription());
         }
         
-        taskMapper.updateEntity(dto, task);
-        
+        // Индекс
         if (dto.getIndex() != null) {
             task.setIndex(dto.getIndex());
         }
 
+        // Обновление статуса
         if (dto.getTaskStatusId() != null) {
             TaskStatus status = taskStatusRepository.findById(dto.getTaskStatusId())
                     .orElseThrow(() -> new RuntimeException("TaskStatus not found"));
@@ -146,6 +148,7 @@ public class TaskMapperService {
             task.setTaskStatus(dto.getTaskStatus());
         }
 
+        // Обновление исполнителя
         if (dto.getAssigneeId() != null) {
             User assignee = userRepository.findById(dto.getAssigneeId())
                     .orElseThrow(() -> new RuntimeException("User not found"));
@@ -155,6 +158,7 @@ public class TaskMapperService {
             task.setAssignee(dto.getAssignee());
         }
 
+        // Обновление меток
         List<Long> labelIds = dto.getLabelIds();
         if ((labelIds == null || labelIds.isEmpty()) && dto.getTaskLabelIds() != null && !dto.getTaskLabelIds().isEmpty()) {
             labelIds = dto.getTaskLabelIds();
