@@ -7,7 +7,6 @@ import hexlet.code.app.repository.LabelRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,10 +34,7 @@ public class LabelServiceImpl implements LabelService {
     public LabelDTO createLabel(LabelCreateDTO dto) {
         Label label = new Label();
         label.setName(dto.getName());
-        
-        if (labelRepository.findByName(label.getName()).isPresent()) {
-            throw new RuntimeException("Label with this name already exists");
-        }
+
         Label saved = labelRepository.save(label);
         return toDTO(saved);
     }
@@ -49,10 +45,6 @@ public class LabelServiceImpl implements LabelService {
                 .orElseThrow(() -> new RuntimeException("Label not found"));
 
         if (dto.getName() != null) {
-            if (labelRepository.findByName(dto.getName()).isPresent() &&
-                !existing.getName().equals(dto.getName())) {
-                throw new RuntimeException("Label with this name already exists");
-            }
             existing.setName(dto.getName());
         }
 
@@ -62,13 +54,9 @@ public class LabelServiceImpl implements LabelService {
 
     @Override
     public void deleteLabel(Long id) {
-        Label label = labelRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Label not found"));
-
-        if (label.getTasks() != null && !label.getTasks().isEmpty()) {
-            throw new RuntimeException("Cannot delete label with tasks");
+        if (!labelRepository.existsById(id)) {
+            throw new RuntimeException("Label not found");
         }
-
         labelRepository.deleteById(id);
     }
 
