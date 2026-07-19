@@ -33,11 +33,6 @@ public class SecurityConfig {
     private final JwtService jwtService;
 
     @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(jwtService, userDetailsService);
-    }
-
-    @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
@@ -54,9 +49,9 @@ public class SecurityConfig {
                                 "/test.html",
                                 "/assets/**",
                                 "/api/login",
+                                "/api/users",
                                 "/welcome",
                                 "/swagger-ui/**",
-                                "/api/users",
                                 "/swagger-ui.html",
                                 "/api-docs/**",
                                 "/v3/api-docs/**"
@@ -70,7 +65,10 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(
+                    new JwtAuthenticationFilter(jwtService, userDetailsService),
+                    UsernamePasswordAuthenticationFilter.class
+                );
 
         return http.build();
     }
