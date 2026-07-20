@@ -30,12 +30,12 @@ public class TaskMapperService {
 
     public Task toEntity(TaskCreateDTO dto) {
         Task task = taskMapper.toEntity(dto);
-        
+
         // Ручное заполнение name из title (для тестов Hexlet)
         if (dto.getName() == null || dto.getName().isEmpty()) {
             task.setName(dto.getTitle());
         }
-        
+
         // Ручное заполнение description из content (для тестов Hexlet)
         if (dto.getDescription() == null || dto.getDescription().isEmpty()) {
             task.setDescription(dto.getContent());
@@ -84,19 +84,19 @@ public class TaskMapperService {
 
     public TaskDTO toDTO(Task task) {
         TaskDTO dto = taskMapper.toDTO(task);
-        
+
         dto.setTitle(task.getName());
         dto.setContent(task.getDescription());
-        
+
         if (task.getTaskStatus() != null) {
             dto.setStatus(task.getTaskStatus().getSlug());
             dto.setTaskStatusId(task.getTaskStatus().getId());
         }
-        
+
         if (task.getAssignee() != null) {
             dto.setAssigneeId(task.getAssignee().getId());
         }
-        
+
         if (task.getLabels() != null && !task.getLabels().isEmpty()) {
             List<Long> labelIds = task.getLabels().stream()
                     .map(Label::getId)
@@ -107,7 +107,7 @@ public class TaskMapperService {
             dto.setLabelIds(new ArrayList<>());
             dto.setTaskLabelIds(new ArrayList<>());
         }
-        
+
         return dto;
     }
 
@@ -119,7 +119,7 @@ public class TaskMapperService {
         if (dto.getName() != null) {
             task.setName(dto.getName());
         }
-        
+
         // Обновление description / content
         if (dto.getContent() != null) {
             task.setDescription(dto.getContent());
@@ -127,7 +127,7 @@ public class TaskMapperService {
         if (dto.getDescription() != null) {
             task.setDescription(dto.getDescription());
         }
-        
+
         // Индекс
         if (dto.getIndex() != null) {
             task.setIndex(dto.getIndex());
