@@ -1,6 +1,7 @@
 package hexlet.code.app.service;
 
 import hexlet.code.app.dto.UserDTO;
+import hexlet.code.app.mapper.UserMapper;
 import hexlet.code.app.model.User;
 import hexlet.code.app.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,12 +32,16 @@ class UserServiceImplTest {
     private PasswordEncoder passwordEncoder;
 
     @Mock
+    private UserMapper userMapper;
+
+    @Mock
     private Authentication authentication;
 
     @InjectMocks
     private UserServiceImpl userService;
 
     private User testUser;
+    private UserDTO testUserDTO;
 
     @BeforeEach
     void setUp() {
@@ -46,28 +51,38 @@ class UserServiceImplTest {
         testUser.setPassword("password123");
         testUser.setFirstName("Test");
         testUser.setLastName("User");
+
+        testUserDTO = new UserDTO();
+        testUserDTO.setId(1L);
+        testUserDTO.setEmail("test@example.com");
+        testUserDTO.setFirstName("Test");
+        testUserDTO.setLastName("User");
     }
 
     @Test
     void testGetAllUsers() {
         when(userRepository.findAll()).thenReturn(List.of(testUser));
+        when(userMapper.toDTO(testUser)).thenReturn(testUserDTO);
 
         List<UserDTO> result = userService.getAllUsers();
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getEmail()).isEqualTo("test@example.com");
         verify(userRepository).findAll();
+        verify(userMapper).toDTO(testUser);
     }
 
     @Test
     void testGetUserById_Success() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
+        when(userMapper.toDTO(testUser)).thenReturn(testUserDTO);
 
         UserDTO result = userService.getUserById(1L);
 
         assertThat(result).isNotNull();
         assertThat(result.getEmail()).isEqualTo("test@example.com");
         verify(userRepository).findById(1L);
+        verify(userMapper).toDTO(testUser);
     }
 
     @Test
@@ -84,12 +99,14 @@ class UserServiceImplTest {
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.empty());
         when(passwordEncoder.encode("password123")).thenReturn("encodedPassword");
         when(userRepository.save(any(User.class))).thenReturn(testUser);
+        when(userMapper.toDTO(testUser)).thenReturn(testUserDTO);
 
         UserDTO result = userService.createUser(testUser);
 
         assertThat(result).isNotNull();
         assertThat(result.getEmail()).isEqualTo("test@example.com");
         verify(userRepository).save(any(User.class));
+        verify(userMapper).toDTO(testUser);
     }
 
     @Test
@@ -108,17 +125,24 @@ class UserServiceImplTest {
         updatedUser.setLastName("Name");
         updatedUser.setEmail("new@example.com");
 
+        User updatedEntity = new User();
+        updatedEntity.setId(1L);
+        updatedEntity.setEmail("new@example.com");
+        updatedEntity.setFirstName("Updated");
+        updatedEntity.setLastName("Name");
+
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
         when(authentication.getName()).thenReturn("test@example.com");
         SecurityContextHolder.getContext().setAuthentication(authentication);
         when(userRepository.findByEmail("new@example.com")).thenReturn(Optional.empty());
-
-        when(userRepository.save(any(User.class))).thenReturn(testUser);
+        when(userRepository.save(any(User.class))).thenReturn(updatedEntity);
+        when(userMapper.toDTO(updatedEntity)).thenReturn(testUserDTO);
 
         UserDTO result = userService.updateUser(1L, updatedUser);
 
         assertThat(result).isNotNull();
         verify(userRepository).save(any(User.class));
+        verify(userMapper).toDTO(any(User.class));
     }
 
     @Test

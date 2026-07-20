@@ -1,6 +1,7 @@
 package hexlet.code.app.service;
 
 import hexlet.code.app.dto.UserDTO;
+import hexlet.code.app.mapper.UserMapper;
 import hexlet.code.app.model.User;
 import hexlet.code.app.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,11 +18,12 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
 
     @Override
     public List<UserDTO> getAllUsers() {
         return userRepository.findAll().stream()
-                .map(this::toDTO)
+                .map(userMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
@@ -29,7 +31,7 @@ public class UserServiceImpl implements UserService {
     public UserDTO getUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        return toDTO(user);
+        return userMapper.toDTO(user);
     }
 
     @Override
@@ -39,7 +41,7 @@ public class UserServiceImpl implements UserService {
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         User saved = userRepository.save(user);
-        return toDTO(saved);
+        return userMapper.toDTO(saved);
     }
 
     @Override
@@ -47,7 +49,6 @@ public class UserServiceImpl implements UserService {
         User existing = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Проверяем, что пользователь редактирует себя
         String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         if (!existing.getEmail().equals(currentUserEmail)) {
             throw new RuntimeException("You can only edit your own profile");
@@ -71,7 +72,7 @@ public class UserServiceImpl implements UserService {
         }
 
         User saved = userRepository.save(existing);
-        return toDTO(saved);
+        return userMapper.toDTO(saved);
     }
 
     @Override
@@ -80,15 +81,5 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("User not found");
         }
         userRepository.deleteById(id);
-    }
-
-    private UserDTO toDTO(User user) {
-        UserDTO dto = new UserDTO();
-        dto.setId(user.getId());
-        dto.setEmail(user.getEmail());
-        dto.setFirstName(user.getFirstName());
-        dto.setLastName(user.getLastName());
-        dto.setCreatedAt(user.getCreatedAt());
-        return dto;
     }
 }
