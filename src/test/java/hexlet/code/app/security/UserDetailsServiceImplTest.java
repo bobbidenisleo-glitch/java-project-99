@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import hexlet.code.app.model.Role;
 
 import java.util.Optional;
 
@@ -54,22 +55,23 @@ class UserDetailsServiceImplTest {
 
     @Test
     void loadUserByUsername_ShouldReturnAdminRole_WhenUserIsAdmin() {
-        String adminEmail = "hexlet@example.com";
-        User adminUser = new User();
-        adminUser.setId(2L);
-        adminUser.setEmail(adminEmail);
-        adminUser.setPassword("adminPassword");
-        adminUser.setFirstName("Admin");
-        adminUser.setLastName("User");
+    String adminEmail = "hexlet@example.com";
+    User adminUser = new User();
+    adminUser.setId(2L);
+    adminUser.setEmail(adminEmail);
+    adminUser.setPassword("adminPassword");
+    adminUser.setFirstName("Admin");
+    adminUser.setLastName("User");
+    adminUser.setRole(Role.ADMIN);  // ← Добавить
 
-        when(userRepository.findByEmail(adminEmail)).thenReturn(Optional.of(adminUser));
+    when(userRepository.findByEmail(adminEmail)).thenReturn(Optional.of(adminUser));
 
-        UserDetails userDetails = userDetailsService.loadUserByUsername(adminEmail);
+    UserDetails userDetails = userDetailsService.loadUserByUsername(adminEmail);
 
-        assertThat(userDetails).isNotNull();
-        assertThat(userDetails.getUsername()).isEqualTo(adminEmail);
-        assertThat(userDetails.getAuthorities()).anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-    }
+    assertThat(userDetails).isNotNull();
+    assertThat(userDetails.getUsername()).isEqualTo(adminEmail);
+    assertThat(userDetails.getAuthorities()).anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+}
 
     @Test
     void loadUserByUsername_ShouldThrowUsernameNotFoundException_WhenUserNotFound() {

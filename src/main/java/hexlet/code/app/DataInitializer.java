@@ -1,6 +1,7 @@
 package hexlet.code.app;
 
 import hexlet.code.app.model.Label;
+import hexlet.code.app.model.Role;
 import hexlet.code.app.model.TaskStatus;
 import hexlet.code.app.model.User;
 import hexlet.code.app.repository.LabelRepository;
@@ -33,6 +34,7 @@ public class DataInitializer implements CommandLineRunner {
             admin.setPassword(passwordEncoder.encode("qwerty"));
             admin.setFirstName("Admin");
             admin.setLastName("Hexlet");
+            admin.setRole(Role.ADMIN);
             userRepository.save(admin);
             log.info("Admin user created: hexlet@example.com / qwerty");
         }

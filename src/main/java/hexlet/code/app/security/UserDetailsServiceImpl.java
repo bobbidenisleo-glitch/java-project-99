@@ -22,13 +22,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
 
-        // Проверяем, является ли пользователь администратором
-        boolean isAdmin = "hexlet@example.com".equals(email);
+        String role = user.getRole() != null ? user.getRole().name() : "USER";
+        String authority = "ROLE_" + role;
 
         return org.springframework.security.core.userdetails.User
                 .withUsername(user.getEmail())
                 .password(user.getPassword())
-                .authorities(Collections.singletonList(new SimpleGrantedAuthority(isAdmin ? "ROLE_ADMIN" : "ROLE_USER")))
+                .authorities(Collections.singletonList(new SimpleGrantedAuthority(authority)))
                 .build();
     }
 }

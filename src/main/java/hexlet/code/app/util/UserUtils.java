@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import hexlet.code.app.model.Role;
 
 @Component
 @RequiredArgsConstructor
@@ -37,10 +38,10 @@ public class UserUtils {
     }
 
     public boolean isAdmin() {
-        User currentUser = getCurrentUser();
-        if (currentUser == null) {
-            return false;
-        }
-        return "hexlet@example.com".equals(currentUser.getEmail());
+    User currentUser = getCurrentUser();
+    if (currentUser == null) {
+        return false;
+    }
+    return currentUser.getRole() == Role.ADMIN;
     }
 }

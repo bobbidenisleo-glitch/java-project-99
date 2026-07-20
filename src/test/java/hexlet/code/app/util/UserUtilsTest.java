@@ -11,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import hexlet.code.app.model.Role;
 
 import java.util.Optional;
 
@@ -129,19 +130,20 @@ class UserUtilsTest {
 
     @Test
     void testIsAdmin_WhenUserIsAdmin() {
-        User adminUser = new User();
-        adminUser.setId(1L);
-        adminUser.setEmail("hexlet@example.com");
+    User adminUser = new User();
+    adminUser.setId(1L);
+    adminUser.setEmail("hexlet@example.com");
+    adminUser.setRole(Role.ADMIN);  // ← Добавить
 
-        when(authentication.isAuthenticated()).thenReturn(true);
-        when(authentication.getName()).thenReturn("hexlet@example.com");
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        when(userRepository.findByEmail("hexlet@example.com")).thenReturn(Optional.of(adminUser));
+    when(authentication.isAuthenticated()).thenReturn(true);
+    when(authentication.getName()).thenReturn("hexlet@example.com");
+    SecurityContextHolder.getContext().setAuthentication(authentication);
+    when(userRepository.findByEmail("hexlet@example.com")).thenReturn(Optional.of(adminUser));
 
-        boolean result = userUtils.isAdmin();
+    boolean result = userUtils.isAdmin();
 
-        assertThat(result).isTrue();
-    }
+    assertThat(result).isTrue();
+}
 
     @Test
     void testIsAdmin_WhenUserIsNotAdmin() {
